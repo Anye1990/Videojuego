@@ -947,7 +947,40 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      spritesheet-tiles-double_0: 6661423218772513052
+      spritesheet-tiles-double_1: 2546091470278102741
+      spritesheet-tiles-double_10: -835323129812648639
+      spritesheet-tiles-double_11: -6079168542300894185
+      spritesheet-tiles-double_12: 738846556112618627
+      spritesheet-tiles-double_13: -4405361227817361852
+      spritesheet-tiles-double_14: 291018823524670741
+      spritesheet-tiles-double_15: -4904554034101766542
+      spritesheet-tiles-double_16: 7002576418258175005
+      spritesheet-tiles-double_17: -1683803422103563339
+      spritesheet-tiles-double_18: 4363979013124230533
+      spritesheet-tiles-double_19: -2566129536048672217
+      spritesheet-tiles-double_2: 4306635100645024964
+      spritesheet-tiles-double_20: -2099794400682346490
+      spritesheet-tiles-double_21: -569814373884117938
+      spritesheet-tiles-double_22: -8092362519695040394
+      spritesheet-tiles-double_23: -3313461318203570931
+      spritesheet-tiles-double_24: 4729702955865313777
+      spritesheet-tiles-double_25: -5356363284579913207
+      spritesheet-tiles-double_26: 7680480339988488469
+      spritesheet-tiles-double_27: 3344334326317440327
+      spritesheet-tiles-double_28: -4626361774562665796
+      spritesheet-tiles-double_29: 8985726701125212815
+      spritesheet-tiles-double_3: -4656019727010353807
+      spritesheet-tiles-double_30: -3746987802193453261
+      spritesheet-tiles-double_31: -4155050542642524093
+      spritesheet-tiles-double_32: -2014726043922597341
+      spritesheet-tiles-double_4: -6973253949033141261
+      spritesheet-tiles-double_5: 3199249683841133869
+      spritesheet-tiles-double_6: 1651297446938782664
+      spritesheet-tiles-double_7: 1372658565631809018
+      spritesheet-tiles-double_8: -2853058124784275300
+      spritesheet-tiles-double_9: -5396202223970823673
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

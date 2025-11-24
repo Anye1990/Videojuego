@@ -622,7 +622,27 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      spritesheet-tiles-default_0: -2808014073550543062
+      spritesheet-tiles-default_1: -4663983427527070357
+      spritesheet-tiles-default_10: -9112407625878952610
+      spritesheet-tiles-default_11: -5402880079443221757
+      spritesheet-tiles-default_12: -3816896651549730107
+      spritesheet-tiles-default_13: 8254571449526861975
+      spritesheet-tiles-default_14: -6100422813941785590
+      spritesheet-tiles-default_15: -4258255429078663980
+      spritesheet-tiles-default_16: 4548459916359141628
+      spritesheet-tiles-default_17: -5916871559792969337
+      spritesheet-tiles-default_18: 5695104305369758909
+      spritesheet-tiles-default_19: 4567531931847817840
+      spritesheet-tiles-default_2: -8361174296143886262
+      spritesheet-tiles-default_3: 7202180622392529822
+      spritesheet-tiles-default_4: 8643378792194019154
+      spritesheet-tiles-default_5: -1187303547038367165
+      spritesheet-tiles-default_6: -3297716702956664517
+      spritesheet-tiles-default_7: 1684297740197026296
+      spritesheet-tiles-default_8: 3346331842918924135
+      spritesheet-tiles-default_9: 14887903110802353
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
