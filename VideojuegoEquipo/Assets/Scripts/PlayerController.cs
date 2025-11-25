@@ -23,4 +23,9 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
     }
+
+    public void TakeDamage(int cantidad)
+    {
+        GameManager.instance.ChangeHealth(-cantidad);
+    }
 }

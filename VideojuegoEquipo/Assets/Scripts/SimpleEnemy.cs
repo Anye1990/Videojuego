@@ -30,7 +30,7 @@ public class SimpleEnemy : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            other.GetComponent<PlayerHealth>().TakeDamage(damage);
+            other.SendMessage("TakeDamage", damage, SendMessageOptions.DontRequireReceiver);
         }
     }
 }
