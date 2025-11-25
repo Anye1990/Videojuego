@@ -15,12 +15,12 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         float move = Input.GetAxis("Horizontal");
-        rb.velocity = new Vector2(move * speed, rb.velocity.y);
+        rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
 
         if (Input.GetButtonDown("Jump"))
         {
             // Chequea si está en el piso antes de saltar
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
     }
 }
