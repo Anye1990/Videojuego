@@ -180,6 +180,7 @@ GameObject:
   - component: {fileID: 278201030}
   - component: {fileID: 278201029}
   - component: {fileID: 278201028}
+  - component: {fileID: 278201033}
   m_Layer: 0
   m_Name: Jugador
   m_TagString: Untagged
@@ -197,7 +198,7 @@ Animator:
   m_GameObject: {fileID: 278201027}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 3243a652996dfd84a8773218708fd826, type: 2}
+  m_Controller: {fileID: 22100000, guid: f1366de7f74a04841876d847f89f5dba, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -352,6 +353,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &278201033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 278201027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee72c88d6eacc1d4a8757406d040118f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 5
+  jumpForce: 8
+  characterAnimators:
+  - {fileID: 9100000, guid: 3243a652996dfd84a8773218708fd826, type: 2}
+  - {fileID: 22100000, guid: d05406662907e7e47bd7fbf48d49e7a4, type: 2}
+  - {fileID: 22100000, guid: f1366de7f74a04841876d847f89f5dba, type: 2}
 --- !u!1 &286142893
 GameObject:
   m_ObjectHideFlags: 0
