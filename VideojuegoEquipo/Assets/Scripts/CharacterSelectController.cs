@@ -14,4 +14,5 @@ public class CharacterSelectController : MonoBehaviour
         PlayerPrefs.SetInt("SelectedCharacter", characterIndex);
         SceneManager.LoadScene("Level1");
     }
+
 }

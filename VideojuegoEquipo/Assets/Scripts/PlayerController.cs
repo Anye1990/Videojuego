@@ -50,7 +50,6 @@ public class PlayerController : MonoBehaviour
         }
 
         // CAÍDA / ATERRIZAJE
-        // Si la velocidad vertical es casi 0, asumimos que ha tocado suelo
         if (Mathf.Abs(rb.linearVelocity.y) < 0.01f)
         {
             animator.SetBool("IsJumping", false);
