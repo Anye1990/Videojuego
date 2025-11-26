@@ -10,7 +10,7 @@ public class FallingPlatform : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!fallTriggered && collision.gameObject.CompareTag("Player"))
+        if (!fallTriggered && collision.gameObject.CompareTag("Jugador"))
         {
             fallTriggered = true;
             Invoke("Fall", fallDelay);
