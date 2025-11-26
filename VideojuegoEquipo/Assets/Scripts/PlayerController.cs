@@ -6,7 +6,6 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 8f;
     private Rigidbody2D rb;
     private Animator animator;
-
     public RuntimeAnimatorController[] characterAnimators;
 
     private void Start()
@@ -14,10 +13,10 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
-        // Lee qué personaje se eligió (0, 1 o 2)
+        // 1. Recuperar el personaje seleccionado
         int selectedCharacterIndex = PlayerPrefs.GetInt("SelectedCharacter", 0);
 
-        // Asigna el controlador correcto
+        // 2. Asignar el animador correcto si la lista está llena
         if (characterAnimators.Length > 0 && selectedCharacterIndex < characterAnimators.Length)
         {
             animator.runtimeAnimatorController = characterAnimators[selectedCharacterIndex];
@@ -28,14 +27,19 @@ public class PlayerController : MonoBehaviour
     {
         float move = Input.GetAxis("Horizontal");
 
-        // Recuerda usar rb.linearVelocity si estás en Unity 6, o rb.velocity en versiones anteriores
+        // MOVIMIENTO (Compatible con Unity 6 y anteriores)
         rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
 
-        if (move > 0) transform.localScale = new Vector3(1, 1, 1);
-        else if (move < 0) transform.localScale = new Vector3(-1, 1, 1);
+        // GIRO DEL PERSONAJE (FLIP)
+        if (move > 0.01f)
+            transform.localScale = new Vector3(1, 1, 1);
+        else if (move < -0.01f)
+            transform.localScale = new Vector3(-1, 1, 1);
 
+        // ANIMACIÓN DE CORRER
         animator.SetFloat("Speed", Mathf.Abs(move));
 
+        // SALTO
         if (Input.GetButtonDown("Jump"))
         {
             if (Mathf.Abs(rb.linearVelocity.y) < 0.01f)
@@ -45,6 +49,8 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        // CAÍDA / ATERRIZAJE
+        // Si la velocidad vertical es casi 0, asumimos que ha tocado suelo
         if (Mathf.Abs(rb.linearVelocity.y) < 0.01f)
         {
             animator.SetBool("IsJumping", false);

@@ -153,7 +153,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 20, y: 35}
+  m_AnchoredPosition: {x: 14.12, y: 36.11}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &23760892
@@ -329,7 +329,7 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 3
+          m_IntArgument: 2
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -384,7 +384,6 @@ GameObject:
   - component: {fileID: 213421681}
   - component: {fileID: 213421680}
   - component: {fileID: 213421679}
-  - component: {fileID: 213421678}
   m_Layer: 5
   m_Name: Personaje 1
   m_TagString: Untagged
@@ -411,19 +410,6 @@ RectTransform:
   m_AnchoredPosition: {x: -198, y: -53}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &213421678
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 213421676}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a4588479bbf55d4ca059902aeb9558a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  characterControllers: []
 --- !u!114 &213421679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1245,7 +1231,6 @@ GameObject:
   - component: {fileID: 2111615088}
   - component: {fileID: 2111615087}
   - component: {fileID: 2111615086}
-  - component: {fileID: 2111615085}
   m_Layer: 5
   m_Name: Personaje 2
   m_TagString: Untagged
@@ -1273,19 +1258,6 @@ RectTransform:
   m_AnchoredPosition: {x: 20, y: -53}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2111615085
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2111615083}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a4588479bbf55d4ca059902aeb9558a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  characterControllers: []
 --- !u!114 &2111615086
 MonoBehaviour:
   m_ObjectHideFlags: 0
