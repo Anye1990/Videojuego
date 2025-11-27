@@ -6,78 +6,89 @@ public class FlyingEnemy : MonoBehaviour
     public int damage = 1;
     public Transform[] patrolPoints;
     private int currentPointIndex = 0;
-
-    // MARCA ESTA CASILLA EN EL INSPECTOR SI TU DIBUJO ORIGINAL MIRA A LA IZQUIERDA
     public bool spriteMiraIzquierda = true;
+
     void Update()
     {
-        // Esto bloquea a la abeja en el plano 2D pase lo que pase
-        transform.position = new Vector3(transform.position.x, transform.position.y, 0);
+        if (patrolPoints == null || patrolPoints.Length == 0) return;
 
         Patrol();
     }
+
+    // "LateUpdate" se ejecuta al final de todo, ideal para corregir posiciones
+    void LateUpdate()
+    {
+        // 1. FORZAR SIEMPRE LA POSICIÓN Z A 0 (Evita que desaparezca al fondo)
+        transform.position = new Vector3(transform.position.x, transform.position.y, 0);
+
+        // 2. FORZAR SIEMPRE ROTACIÓN RECTA (Evita que gire rara)
+        transform.rotation = Quaternion.identity;
+    }
+
     void Patrol()
     {
-        if (patrolPoints.Length == 0) return;
+        Transform targetPoint = patrolPoints[currentPointIndex];
 
-        // Obtenemos la posición del destino actual
-        Vector3 destino = patrolPoints[currentPointIndex].position;
+        // Usamos Vector2 para ignorar problemas de altura/profundidad
+        Vector2 miPos = transform.position;
+        Vector2 destino = targetPoint.position;
 
-        // --- CORRECCIÓN CLAVE ---
-        // Forzamos que el destino tenga EXACTAMENTE la misma Z que la abeja.
-        // Así evitamos que se quede atascada intentando ir al fondo de la pantalla.
-        destino.z = transform.position.z;
+        // Moverse
+        transform.position = Vector2.MoveTowards(miPos, destino, speed * Time.deltaTime);
 
-        // 1. MOVERSE
-        transform.position = Vector3.MoveTowards(transform.position, destino, speed * Time.deltaTime);
-
-        // 2. GIRAR (FLIP)
-        // Usamos 'destino' en lugar de 'targetPoint.position'
+        // Girar (Flip)
         Vector3 scale = transform.localScale;
+        // Nos aseguramos que el scale sea positivo en Y y Z siempre
+        scale.y = Mathf.Abs(scale.y);
+        scale.z = Mathf.Abs(scale.z);
 
-        if (destino.x > transform.position.x)
+        if (Vector2.Distance(miPos, destino) > 0.1f) // Solo girar si nos movemos
         {
-            // Derecha
-            scale.x = spriteMiraIzquierda ? -1 : 1;
+            if (destino.x > miPos.x) // Va a la derecha
+                scale.x = spriteMiraIzquierda ? -Mathf.Abs(scale.x) : Mathf.Abs(scale.x);
+            else // Va a la izquierda
+                scale.x = spriteMiraIzquierda ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
+
+            transform.localScale = scale;
         }
-        else if (destino.x < transform.position.x)
-        {
-            // Izquierda
-            scale.x = spriteMiraIzquierda ? 1 : -1;
-        }
 
-        scale.y = 1;
-        scale.z = 1;
-        transform.localScale = scale;
-
-        // 3. CAMBIAR OBJETIVO
-        // Usamos Vector2.Distance para ignorar la Z por completo
-        if (Vector2.Distance(transform.position, destino) < 0.2f)
+        // Cambiar de punto si está cerca
+        if (Vector2.Distance(miPos, destino) < 0.2f)
         {
-            currentPointIndex = (currentPointIndex + 1) % patrolPoints.Length;
+            currentPointIndex++;
+            if (currentPointIndex >= patrolPoints.Length) currentPointIndex = 0;
         }
     }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // 1. ¿Es el jugador?
         if (collision.gameObject.CompareTag("Jugador"))
         {
-            Collider2D enemyCollider = GetComponent<Collider2D>();
-            Collider2D playerCollider = collision.collider;
+            // 2. Analizamos el primer punto de contacto del choque
+            // La "normal" nos dice la dirección del golpe.
+            // Si normal.y es negativo (aprox -1), significa que el golpe vino de ARRIBA hacia abajo sobre la abeja.
 
-            float enemyTop = enemyCollider.bounds.max.y;
-            float playerBottom = playerCollider.bounds.min.y;
-
-            if (playerBottom >= enemyTop - 0.2f)
+            // Usamos -0.5f para ser generosos (permite golpear un poco en diagonal)
+            if (collision.contacts[0].normal.y < -0.5f)
             {
-                Destroy(gameObject);
+                Debug.Log("¡Abeja aplastada! (Detectado por normal)");
+
+                // Hacemos rebotar al jugador
                 Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
                 if (playerRb != null)
                 {
-                    playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, 6f);
+                    playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, 8f); // Salto un poco más alto
                 }
+
+                // Destruimos la abeja
+                Destroy(gameObject);
             }
             else
             {
+                Debug.Log("Golpe fallido (fue de lado o desde abajo). Dañando jugador.");
+
+                // Si no fue desde arriba, dañamos al jugador
                 PlayerController player = collision.gameObject.GetComponent<PlayerController>();
                 if (player != null)
                 {
