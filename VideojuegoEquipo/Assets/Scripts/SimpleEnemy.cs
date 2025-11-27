@@ -3,7 +3,7 @@ using UnityEngine;
 public class SimpleEnemy : MonoBehaviour
 {
     public float speed = 2.0f;
-    public int damage = 1; // Bajamos el daño a 1 para probar (o usa 10 si prefieres)
+    public int damage = 1;
     public Transform[] patrolPoints;
     private int currentPointIndex = 0;
 
@@ -14,41 +14,65 @@ public class SimpleEnemy : MonoBehaviour
 
     void Patrol()
     {
-        // Si no hay puntos asignados, no hacemos nada para evitar errores
         if (patrolPoints.Length == 0) return;
 
         Transform targetPoint = patrolPoints[currentPointIndex];
-
-        // Moverse hacia el objetivo
         transform.position = Vector3.MoveTowards(transform.position, targetPoint.position, speed * Time.deltaTime);
 
-        // GIRAR AL ENEMIGO (FLIP)
-        // Si el destino está a la derecha, miramos a la derecha (escala 1)
+        // Girar al enemigo
         if (targetPoint.position.x > transform.position.x)
             transform.localScale = new Vector3(1, 1, 1);
-        // Si el destino está a la izquierda, miramos a la izquierda (escala -1)
         else if (targetPoint.position.x < transform.position.x)
             transform.localScale = new Vector3(-1, 1, 1);
 
-        // Si llegamos al punto (distancia muy corta)
         if (Vector3.Distance(transform.position, targetPoint.position) < 0.2f)
         {
-            // Pasamos al siguiente punto de la lista (0 -> 1 -> 0 ...)
             currentPointIndex = (currentPointIndex + 1) % patrolPoints.Length;
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D other) // Usamos OnTriggerEnter2D para juegos 2D
+    // CAMBIO AQUÍ: Usamos OnCollision en lugar de OnTrigger para detectar la física del golpe
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        // IMPORTANTE: Verifica que tu personaje tenga la etiqueta "Player"
-        if (other.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Jugador"))
         {
-            // Busca el script del jugador para hacerle daño
-            PlayerController player = other.GetComponent<PlayerController>();
-            if (player != null)
+            // Verificamos la dirección del golpe usando los "contactos" de la colisión.
+            // Si la normal Y es positiva (> 0.5), significa que el golpe vino de ARRIBA hacia abajo.
+            if (collision.contacts[0].normal.y < -0.5f)
             {
-                player.TakeDamage(damage);
+
+                // Lógica de Respaldo más sencilla: ¿Está el jugador sobre el enemigo?
+                if (collision.transform.position.y > transform.position.y + 0.5f)
+                {
+                    // 1. Eliminar al enemigo
+                    Destroy(gameObject);
+
+                    // 2. Hacer que el jugador rebote (Efecto Mario)
+                    Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
+                    if (playerRb != null)
+                    {
+                        // Le damos un impulso hacia arriba
+                        playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, 6f);
+                    }
+                }
+                else
+                {
+                    HacerDano(collision.gameObject);
+                }
             }
+            else
+            {
+                HacerDano(collision.gameObject);
+            }
+        }
+    }
+
+    void HacerDano(GameObject playerObj)
+    {
+        PlayerController player = playerObj.GetComponent<PlayerController>();
+        if (player != null)
+        {
+            player.TakeDamage(damage);
         }
     }
 }
