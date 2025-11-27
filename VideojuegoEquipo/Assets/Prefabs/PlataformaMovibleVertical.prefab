@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4979925994532166851}
   - component: {fileID: -5790003425073254598}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlataformaMovibleVertical
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -60,7 +60,7 @@ GameObject:
   - component: {fileID: 934346280407971308}
   - component: {fileID: 6645688025901550518}
   - component: {fileID: 8575427874441567210}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: block_green_0 (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,7 +222,7 @@ GameObject:
   - component: {fileID: 1820942299694998032}
   - component: {fileID: 6126033734484255234}
   - component: {fileID: 3161477936037375998}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: block_green_0 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -384,7 +384,7 @@ GameObject:
   - component: {fileID: 1059755921515679458}
   - component: {fileID: 571157871753491172}
   - component: {fileID: 8628098551098367518}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: block_green_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

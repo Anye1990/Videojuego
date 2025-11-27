@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6132052181667575430}
   - component: {fileID: -4184264553291331628}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlataformaNormal1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58,7 +58,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6695409943569553492}
-  m_Layer: 0
+  - component: {fileID: 7481408353040280624}
+  m_Layer: 6
   m_Name: Puntob
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -74,12 +75,58 @@ Transform:
   m_GameObject: {fileID: 589934723782984672}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.78, y: -1.43, z: 0}
+  m_LocalPosition: {x: 1.798, y: -1.157, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6132052181667575430}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &7481408353040280624
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 589934723782984672}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!1 &1247851058540126879
 GameObject:
   m_ObjectHideFlags: 0
@@ -93,7 +140,7 @@ GameObject:
   - component: {fileID: 7546282751557539273}
   - component: {fileID: 6354430566350615265}
   - component: {fileID: 1045828393998119601}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: block_yellow_0 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -249,7 +296,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8609510096745416345}
-  m_Layer: 0
+  - component: {fileID: 1628985857304475458}
+  m_Layer: 6
   m_Name: PuntoA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -265,12 +313,58 @@ Transform:
   m_GameObject: {fileID: 2900260986576959612}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.52, y: -1.44, z: 0}
+  m_LocalPosition: {x: -0.061, y: -1.078, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6132052181667575430}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &1628985857304475458
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2900260986576959612}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!1 &3066739074438564755
 GameObject:
   m_ObjectHideFlags: 0
@@ -284,7 +378,7 @@ GameObject:
   - component: {fileID: 613664873928463404}
   - component: {fileID: 383794997156843945}
   - component: {fileID: 2402084415852699913}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: block_yellow_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -444,7 +538,7 @@ GameObject:
   - component: {fileID: 3831229328335764731}
   - component: {fileID: 7443840232112335555}
   - component: {fileID: 6537006328695901838}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: block_yellow_0 (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
