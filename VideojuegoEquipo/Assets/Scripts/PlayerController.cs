@@ -16,26 +16,28 @@ public class PlayerController : MonoBehaviour
     public LayerMask groundLayer;
     private bool isGrounded;
 
-    [Header("Audio")] // NUEVO: Sección de Audio
-    public AudioClip jumpSound;       // Sonido salto normal
-    public AudioClip doubleJumpSound; // Sonido doble salto
-    public AudioClip hurtSound;       // Sonido al recibir daño
-    private AudioSource audioSource;  // El componente que emite el sonido
+    [Header("Audio")]
+    public AudioClip jumpSound;
+    public AudioClip doubleJumpSound;
+    public AudioClip hurtSound;
+    private AudioSource audioSource;
 
     private Rigidbody2D rb;
     private Animator animator;
     public RuntimeAnimatorController[] characterAnimators;
 
+    // Variables para guardar el input (teclas)
+    private float moveInput;
+    private bool jumpRequest;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-
-        // NUEVO: Obtener el componente AudioSource
         audioSource = GetComponent<AudioSource>();
-
         jumpsRemaining = maxJumps;
 
+        // Cargar personaje seleccionado
         int selectedCharacterIndex = PlayerPrefs.GetInt("SelectedCharacter", 0);
         if (characterAnimators.Length > 0 && selectedCharacterIndex < characterAnimators.Length)
         {
@@ -43,52 +45,60 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Update: Aquí SOLO leemos las teclas (Se ejecuta cada frame visual)
     private void Update()
     {
-        // ... (Tu lógica de GroundCheck sigue igual) ...
+        // 1. Leer input horizontal
+        moveInput = Input.GetAxis("Horizontal");
+
+        // 2. Leer input de salto
+        if (Input.GetButtonDown("Jump"))
+        {
+            jumpRequest = true; // Avisamos que queremos saltar
+        }
+
+        // 3. Animaciones y Giros (Son visuales, van en Update)
+        if (moveInput > 0) transform.localScale = new Vector3(1, 1, 1);
+        else if (moveInput < 0) transform.localScale = new Vector3(-1, 1, 1);
+
+        animator.SetFloat("Speed", Mathf.Abs(moveInput));
+    }
+
+    // FixedUpdate: Aquí SOLO movemos físicas (Se ejecuta 50 veces exactas por seg)
+    private void FixedUpdate()
+    {
+        // 1. Detectar suelo
         if (groundCheck != null)
         {
             bool wasGrounded = isGrounded;
             isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
+            // Resetear saltos al tocar suelo
             if (isGrounded && !wasGrounded && rb.linearVelocity.y <= 0.1f)
             {
                 jumpsRemaining = maxJumps;
                 animator.SetBool("IsJumping", false);
             }
         }
-        // ... (Fallback de GroundCheck) ...
 
-        float move = Input.GetAxis("Horizontal");
-        rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
+        // 2. Mover personaje (Usamos el input guardado)
+        rb.linearVelocity = new Vector2(moveInput * speed, rb.linearVelocity.y);
 
-        if (move > 0) transform.localScale = new Vector3(1, 1, 1);
-        else if (move < 0) transform.localScale = new Vector3(-1, 1, 1);
-
-        animator.SetFloat("Speed", Mathf.Abs(move));
-
-        // LÓGICA DE SALTO CON SONIDO
-        if (Input.GetButtonDown("Jump"))
+        // 3. Ejecutar salto si se pidió
+        if (jumpRequest)
         {
             if (jumpsRemaining > 0)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
                 animator.SetBool("IsJumping", true);
 
-                // NUEVO: Lógica para saber qué sonido tocar
-                if (jumpsRemaining == maxJumps)
-                {
-                    // Es el primer salto
-                    PlaySound(jumpSound);
-                }
-                else
-                {
-                    // Es el doble salto
-                    PlaySound(doubleJumpSound);
-                }
+                // Sonidos
+                if (jumpsRemaining == maxJumps) PlaySound(jumpSound);
+                else PlaySound(doubleJumpSound);
 
                 jumpsRemaining--;
             }
+            jumpRequest = false; // Ya saltamos, apagamos la solicitud
         }
     }
 
@@ -97,12 +107,10 @@ public class PlayerController : MonoBehaviour
         if (GameManager.instance != null)
         {
             GameManager.instance.ChangeHealth(-cantidad);
-            // NUEVO: Reproducir sonido de daño
             PlaySound(hurtSound);
         }
     }
 
-    // NUEVO: Función auxiliar para reproducir sonidos sin interrumpir
     void PlaySound(AudioClip clip)
     {
         if (clip != null && audioSource != null)
@@ -111,5 +119,4 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ... (Gizmos sigue igual) ...
 }
