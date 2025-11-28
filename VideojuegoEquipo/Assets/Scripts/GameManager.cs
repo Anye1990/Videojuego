@@ -7,9 +7,9 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
 
     [Header("Configuración de Juego")]
-    public int lives = 3;          // Vidas totales (intentos)
-    public int maxHealth = 3;      // Corazones máximos por vida
-    public int currentHealth;      // Salud actual
+    public int lives = 3;
+    public int maxHealth = 3;
+    public int currentHealth;
     public int score = 0;
 
     [Header("Objetos y Nivel")]
@@ -17,20 +17,18 @@ public class GameManager : MonoBehaviour
     public int totalCollectiblesInScene;
     public int collectiblesCollected;
 
-    [Header("Referencias UI")]
-    // Usamos NumberRenderer para los números bonitos. 
-    // Si te da error aquí, asegura que creaste el script "NumberRenderer" que te di antes.
-    public NumberRenderer scoreDisplay;
-    public NumberRenderer livesDisplay;
-
-    // Imágenes de los corazones (H1, H2, H3)
-    public Image[] heartImages;
+    [Header("Recursos (Sprites)")]
     public Sprite fullHeart;
     public Sprite emptyHeart;
 
+    // ESTAS VARIABLES YA NO SE ARRASTRAN EN EL GAME MANAGER
+    // Se llenan automáticamente cuando el HUDController se conecta
+    private NumberRenderer scoreDisplay;
+    private NumberRenderer livesDisplay;
+    private Image[] heartImages;
+
     void Awake()
     {
-        // Configuración del Singleton (para que solo haya un GameManager)
         if (instance == null)
         {
             instance = this;
@@ -44,18 +42,40 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Al iniciar, reseteamos salud y contamos objetos
-        ResetHealth();
-
-        // Busca todos los objetos recolectables (Script CollectibleItem)
-        totalCollectiblesInScene = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None).Length;
-
-        UpdateAllUI();
+        // Solo inicializamos lógica de datos, la UI espera al HUDController
+        // totalCollectiblesInScene se debe buscar en cada nivel nuevo
+        // Para eso usaremos el evento de carga de escena abajo
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        InitializeLevelData();
     }
 
-    // --- FUNCIONES QUE TE DABAN ERROR ---
+    // Esta función se llama sola cada vez que carga un nivel
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        InitializeLevelData();
+    }
 
-    // 1. Función para recibir daño (llamada desde el Player o Enemigos)
+    void InitializeLevelData()
+    {
+        totalCollectiblesInScene = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None).Length;
+        collectiblesCollected = 0;
+        // Si quieres resetear la salud al cambiar de nivel:
+        ResetHealth();
+    }
+
+    // --- EL ENCHUFE MÁGICO ---
+    public void RegisterHUD(HUDController hud)
+    {
+        // Recibimos las nuevas conexiones del Canvas nuevo
+        scoreDisplay = hud.scoreDisplay;
+        livesDisplay = hud.livesDisplay;
+        heartImages = hud.heartImages;
+
+        // Actualizamos todo inmediatamente para que se vea
+        UpdateAllUI();
+    }
+    // -------------------------
+
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;
@@ -63,32 +83,20 @@ public class GameManager : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            LoseLife(); // Si se acaban los corazones, perdemos una vida
+            LoseLife();
         }
     }
 
-    // 2. Función interna para reiniciar corazones (llamada en Start y al perder vida)
     void ResetHealth()
     {
         currentHealth = maxHealth;
         UpdateHeartsUI();
     }
 
-    // 3. Función para verificar si se puede pasar de nivel (llamada desde la Meta)
     public bool CanPassLevel()
     {
-        if (collectiblesCollected >= totalCollectiblesInScene && score >= scoreToPassLevel)
-        {
-            return true;
-        }
-        else
-        {
-            Debug.Log("Faltan objetos o puntos para pasar.");
-            return false;
-        }
+        return collectiblesCollected >= totalCollectiblesInScene && score >= scoreToPassLevel;
     }
-
-    // --- OTRAS FUNCIONES NECESARIAS ---
 
     public void CollectObject(int amount)
     {
@@ -104,49 +112,35 @@ public class GameManager : MonoBehaviour
 
         if (lives > 0)
         {
-            Debug.Log("Reiniciando nivel...");
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            ResetHealth();
+            // No necesitamos llamar ResetHealth aquí, OnSceneLoaded lo hará
         }
         else
         {
-            Debug.Log("GAME OVER");
-            SceneManager.LoadScene("MainMenu"); // Asegúrate de tener una escena llamada MainMenu
+            SceneManager.LoadScene("MainMenu");
+            // Al ir al menú, sí destruimos el GM para que se resetee todo el juego
             Destroy(gameObject);
         }
     }
 
-    // --- ACTUALIZACIÓN VISUAL (HUD) ---
-
     void UpdateAllUI()
     {
-        // Actualiza los números (sprites)
         if (scoreDisplay != null) scoreDisplay.UpdateNumber(score);
         if (livesDisplay != null) livesDisplay.UpdateNumber(lives);
-
-        // Actualiza los corazones
         UpdateHeartsUI();
     }
 
     void UpdateHeartsUI()
     {
+        if (heartImages == null) return; // Protección por si no hay HUD
+
         for (int i = 0; i < heartImages.Length; i++)
         {
-            // Si el índice es menor que la salud actual, dibuja corazón lleno
-            if (i < currentHealth)
-            {
-                heartImages[i].sprite = fullHeart;
-            }
-            else
-            {
-                heartImages[i].sprite = emptyHeart;
-            }
+            if (i < currentHealth) heartImages[i].sprite = fullHeart;
+            else heartImages[i].sprite = emptyHeart;
 
-            // Solo mostramos la cantidad de corazones máxima permitida
-            if (i < maxHealth)
-                heartImages[i].enabled = true;
-            else
-                heartImages[i].enabled = false;
+            if (i < maxHealth) heartImages[i].enabled = true;
+            else heartImages[i].enabled = false;
         }
     }
 }

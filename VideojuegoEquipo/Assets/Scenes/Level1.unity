@@ -166,12 +166,6 @@ MonoBehaviour:
   scoreToPassLevel: 100
   totalCollectiblesInScene: 0
   collectiblesCollected: 0
-  scoreDisplay: {fileID: 606898867}
-  livesDisplay: {fileID: 487003255}
-  heartImages:
-  - {fileID: 187050709}
-  - {fileID: 1145016251}
-  - {fileID: 2011165959}
   fullHeart: {fileID: -5343243385429368126, guid: 66662ee28d381cc458fa366d51c09847, type: 3}
   emptyHeart: {fileID: 3184002201865105124, guid: 3e2d2a966b949ba4dbff34d436718289, type: 3}
 --- !u!4 &266832303
@@ -333,6 +327,29 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.83, y: 0.98}
   m_Direction: 0
+--- !u!1 &286142893 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6016831132965472461, guid: ed75d956f7c774e4f90f57380d43c4cb, type: 3}
+  m_PrefabInstance: {fileID: 8026864672996508455}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &286142898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 286142893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6b113d01a47e0946a9eb3ea97e7f52c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scoreDisplay: {fileID: 606898867}
+  livesDisplay: {fileID: 487003255}
+  heartImages:
+  - {fileID: 187050709}
+  - {fileID: 1145016251}
+  - {fileID: 2011165959}
 --- !u!4 &317313655 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8609510096745416345, guid: f20ce971a2451e2488e17a94dde97dbe, type: 3}
@@ -884,7 +901,7 @@ MonoBehaviour:
   offset: {x: -3.1, y: -2.22, z: -10}
   smoothSpeed: 0.125
   enableLimits: 1
-  minLimits: {x: -1.72, y: -1.9}
+  minLimits: {x: -3.1, y: -2.22}
   maxLimits: {x: 22.22, y: 22.22}
 --- !u!114 &1219436994
 MonoBehaviour:
@@ -1145,7 +1162,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7807045196690748697, guid: 2b85c65365e50844e9ce8b356a9c0232, type: 3}
       propertyPath: m_SortingOrder
-      value: -10
+      value: -100
       objectReference: {fileID: 0}
     - target: {fileID: 8017400248309973525, guid: 2b85c65365e50844e9ce8b356a9c0232, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2087,7 +2104,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6016831132965472461, guid: ed75d956f7c774e4f90f57380d43c4cb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 286142898}
   m_SourcePrefab: {fileID: 100100000, guid: ed75d956f7c774e4f90f57380d43c4cb, type: 3}
 --- !u!1001 &8204965102057196320
 PrefabInstance:
