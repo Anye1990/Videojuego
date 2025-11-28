@@ -86,7 +86,6 @@ public class FlyingEnemy : MonoBehaviour
             }
             else
             {
-                Debug.Log("Golpe fallido (fue de lado o desde abajo). Dañando jugador.");
 
                 // Si no fue desde arriba, dañamos al jugador
                 PlayerController player = collision.gameObject.GetComponent<PlayerController>();

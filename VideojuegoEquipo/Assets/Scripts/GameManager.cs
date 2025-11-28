@@ -132,7 +132,7 @@ public class GameManager : MonoBehaviour
 
     void UpdateHeartsUI()
     {
-        if (heartImages == null) return; // Protección por si no hay HUD
+        if (heartImages == null) return; 
 
         for (int i = 0; i < heartImages.Length; i++)
         {
