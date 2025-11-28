@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7315739572274773944}
   - component: {fileID: 7092829635004840104}
   - component: {fileID: 1369592133118301259}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: block_empty_0 (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -199,7 +199,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2134010176683432023}
   - component: {fileID: 2769067841611767125}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlataformaQueCae
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -250,7 +250,7 @@ GameObject:
   - component: {fileID: 1762938592138251756}
   - component: {fileID: 5475831063618660940}
   - component: {fileID: 2622756277913828104}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: block_empty_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -439,7 +439,7 @@ GameObject:
   - component: {fileID: 501903054872386269}
   - component: {fileID: 4986921014550840046}
   - component: {fileID: 6232418581998756035}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: block_empty_0 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

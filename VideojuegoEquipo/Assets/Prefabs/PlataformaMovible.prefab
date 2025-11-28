@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 2
-  distance: 3
+  distance: 2
 --- !u!114 &6969442887274131473
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,7 +325,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 2
-  distance: 3
+  distance: 2
 --- !u!114 &4861443611370974695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -547,7 +547,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 2
-  distance: 3
+  distance: 2
 --- !u!114 &6456594927897818941
 MonoBehaviour:
   m_ObjectHideFlags: 0

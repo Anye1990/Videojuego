@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2056543780472971792}
   - component: {fileID: 3442316574777944990}
   - component: {fileID: 733501382950861096}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BorderTop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -63,7 +63,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -117,7 +117,7 @@ GameObject:
   - component: {fileID: 2193657236607719229}
   - component: {fileID: 32616253627008273}
   - component: {fileID: 5102293218329138557}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BorderLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -169,7 +169,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -223,7 +223,7 @@ GameObject:
   - component: {fileID: 7169994914318081554}
   - component: {fileID: 858576836795888486}
   - component: {fileID: 7890027098367687588}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BorderRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -275,11 +275,11 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: -1.1281698}
+  m_Offset: {x: -0.89419746, y: -1.12817}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -289,7 +289,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 10.307404}
+  m_Size: {x: 0.6059494, y: 10.307404}
   m_EdgeRadius: 0
 --- !u!50 &7890027098367687588
 Rigidbody2D:

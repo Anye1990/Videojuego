@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 357885375301906054}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: puntoa
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 3207430214716275806}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.71, y: 0.26, z: 0}
+  m_LocalPosition: {x: -0.382, y: 0.21, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -40,7 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 465203524557529674}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: puntob
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56,7 +56,7 @@ Transform:
   m_GameObject: {fileID: 4134124325305601240}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.73, y: 0.39, z: 0}
+  m_LocalPosition: {x: -2.298, y: 0.24, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -72,7 +72,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2332108910204343920}
   - component: {fileID: -615857339991973399}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlataformaNormal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 5660375132649328911}
   - component: {fileID: 8904296033653253999}
   - component: {fileID: 5413219157192320553}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: block_blue_0 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -284,7 +284,7 @@ GameObject:
   - component: {fileID: 8462742070529389183}
   - component: {fileID: 5395957667652126310}
   - component: {fileID: 8378857392067430505}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: block_blue_0 (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -444,7 +444,7 @@ GameObject:
   - component: {fileID: 3352481062995643694}
   - component: {fileID: 7630615237809826337}
   - component: {fileID: 4568592760910312783}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: block_blue_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

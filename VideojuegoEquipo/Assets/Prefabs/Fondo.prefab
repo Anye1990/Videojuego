@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 4011757732727833431}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.8, y: -6.025711, z: -0.020093314}
+  m_LocalPosition: {x: 2.91, y: -6.6, z: -0.020093314}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -76,13 +76,13 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -101
+  m_SortingOrder: -100
   m_Sprite: {fileID: -1964278295639965801, guid: 05aa10aa0ab187c46b993402b88d7c66, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 2
-  m_Size: {x: 100, y: 5}
+  m_Size: {x: 120, y: 5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 0}
-  parallaxFactor: 0.5
+  parallaxFactor: 1
 --- !u!1 &4296725455572206328
 GameObject:
   m_ObjectHideFlags: 0
@@ -129,7 +129,7 @@ Transform:
   m_GameObject: {fileID: 4296725455572206328}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.7973483, y: -1.5357109, z: -0.020093314}
+  m_LocalPosition: {x: 2.7973483, y: -1.22, z: -0.020093314}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -203,7 +203,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 0}
-  parallaxFactor: 1
+  parallaxFactor: 0.8
 --- !u!1 &5478288855577739437
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,7 +340,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 0}
-  parallaxFactor: 0.8
+  parallaxFactor: 0.5
 --- !u!1 &7765196620357995179
 GameObject:
   m_ObjectHideFlags: 0
@@ -442,4 +442,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 0}
-  parallaxFactor: 0.5
+  parallaxFactor: 1
