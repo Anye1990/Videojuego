@@ -1,77 +1,152 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    public int playerHealth = 3;
+    [Header("Configuración de Juego")]
+    public int lives = 3;          // Vidas totales (intentos)
+    public int maxHealth = 3;      // Corazones máximos por vida
+    public int currentHealth;      // Salud actual
     public int score = 0;
 
-    // NUEVAS VARIABLES
-    [Header("Condiciones de Victoria")]
-    public int scoreToPassLevel = 100; // Puntaje mínimo necesario
-    public int totalCollectiblesInScene; // Total de objetos en el nivel
-    public int collectiblesCollected;    // Cuántos lleva el jugador
+    [Header("Objetos y Nivel")]
+    public int scoreToPassLevel = 100;
+    public int totalCollectiblesInScene;
+    public int collectiblesCollected;
 
-    [Header("UI")]
-    public Text healthText;
-    public Text scoreText;
-    public Text itemsText; // (Opcional) Para mostrar "3/10 objetos"
+    [Header("Referencias UI")]
+    // Usamos NumberRenderer para los números bonitos. 
+    // Si te da error aquí, asegura que creaste el script "NumberRenderer" que te di antes.
+    public NumberRenderer scoreDisplay;
+    public NumberRenderer livesDisplay;
+
+    // Imágenes de los corazones (H1, H2, H3)
+    public Image[] heartImages;
+    public Sprite fullHeart;
+    public Sprite emptyHeart;
 
     void Awake()
     {
-        instance = this;
+        // Configuración del Singleton (para que solo haya un GameManager)
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     void Start()
     {
-        // Busca todos los CollectibleItem sin ordenarlos y los cuenta
+        // Al iniciar, reseteamos salud y contamos objetos
+        ResetHealth();
+
+        // Busca todos los objetos recolectables (Script CollectibleItem)
         totalCollectiblesInScene = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None).Length;
 
-        UpdateUI();
+        UpdateAllUI();
     }
 
-    public void ChangeHealth(int amount)
-    {
-        playerHealth += amount;
-        UpdateUI();
+    // --- FUNCIONES QUE TE DABAN ERROR ---
 
-        if (playerHealth <= 0)
+    // 1. Función para recibir daño (llamada desde el Player o Enemigos)
+    public void TakeDamage(int amount)
+    {
+        currentHealth -= amount;
+        UpdateHeartsUI();
+
+        if (currentHealth <= 0)
         {
-            Debug.Log("Game Over");
-            // Aquí podrías reiniciar el nivel
+            LoseLife(); // Si se acaban los corazones, perdemos una vida
         }
     }
 
-    // Modificamos AddScore para que también cuente el objeto recolectado
-    public void CollectObject(int amount)
+    // 2. Función interna para reiniciar corazones (llamada en Start y al perder vida)
+    void ResetHealth()
     {
-        score += amount;
-        collectiblesCollected++; // Sumamos 1 al contador de objetos
-        UpdateUI();
+        currentHealth = maxHealth;
+        UpdateHeartsUI();
     }
 
-    // Esta función valida si el jugador puede pasar
+    // 3. Función para verificar si se puede pasar de nivel (llamada desde la Meta)
     public bool CanPassLevel()
     {
-        // Condición: Haber recogido TODOS los objetos Y tener el puntaje mínimo
         if (collectiblesCollected >= totalCollectiblesInScene && score >= scoreToPassLevel)
         {
             return true;
         }
         else
         {
-            Debug.Log($"Faltan requisitos. Objetos: {collectiblesCollected}/{totalCollectiblesInScene}. Puntos: {score}/{scoreToPassLevel}");
+            Debug.Log("Faltan objetos o puntos para pasar.");
             return false;
         }
     }
 
-    void UpdateUI()
+    // --- OTRAS FUNCIONES NECESARIAS ---
+
+    public void CollectObject(int amount)
     {
-        if (healthText) healthText.text = "Vida: " + playerHealth;
-        if (scoreText) scoreText.text = "Puntos: " + score;
-        // (Opcional)
-        if (itemsText) itemsText.text = "Items: " + collectiblesCollected + "/" + totalCollectiblesInScene;
+        score += amount;
+        collectiblesCollected++;
+        UpdateAllUI();
+    }
+
+    public void LoseLife()
+    {
+        lives--;
+        UpdateAllUI();
+
+        if (lives > 0)
+        {
+            Debug.Log("Reiniciando nivel...");
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            ResetHealth();
+        }
+        else
+        {
+            Debug.Log("GAME OVER");
+            SceneManager.LoadScene("MainMenu"); // Asegúrate de tener una escena llamada MainMenu
+            Destroy(gameObject);
+        }
+    }
+
+    // --- ACTUALIZACIÓN VISUAL (HUD) ---
+
+    void UpdateAllUI()
+    {
+        // Actualiza los números (sprites)
+        if (scoreDisplay != null) scoreDisplay.UpdateNumber(score);
+        if (livesDisplay != null) livesDisplay.UpdateNumber(lives);
+
+        // Actualiza los corazones
+        UpdateHeartsUI();
+    }
+
+    void UpdateHeartsUI()
+    {
+        for (int i = 0; i < heartImages.Length; i++)
+        {
+            // Si el índice es menor que la salud actual, dibuja corazón lleno
+            if (i < currentHealth)
+            {
+                heartImages[i].sprite = fullHeart;
+            }
+            else
+            {
+                heartImages[i].sprite = emptyHeart;
+            }
+
+            // Solo mostramos la cantidad de corazones máxima permitida
+            if (i < maxHealth)
+                heartImages[i].enabled = true;
+            else
+                heartImages[i].enabled = false;
+        }
     }
 }

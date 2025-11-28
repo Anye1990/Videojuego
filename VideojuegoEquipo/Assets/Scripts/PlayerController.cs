@@ -101,21 +101,21 @@ public class PlayerController : MonoBehaviour
             jumpRequest = false; // Ya saltamos, apagamos la solicitud
         }
     }
-
-    public void TakeDamage(int cantidad)
-    {
-        if (GameManager.instance != null)
-        {
-            GameManager.instance.ChangeHealth(-cantidad);
-            PlaySound(hurtSound);
-        }
-    }
-
     void PlaySound(AudioClip clip)
     {
         if (clip != null && audioSource != null)
         {
             audioSource.PlayOneShot(clip);
+        }
+    }
+
+    public void TakeDamage(int cantidad)
+    {
+        // Solo llamamos al GameManager, él se encarga de los corazones y vidas
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.TakeDamage(cantidad);
+            PlaySound(hurtSound); // Si pusiste sonido
         }
     }
 
