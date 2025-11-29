@@ -21,12 +21,30 @@ public class GameManager : MonoBehaviour
     public Sprite fullHeart;
     public Sprite emptyHeart;
 
-    // ESTAS VARIABLES YA NO SE ARRASTRAN EN EL GAME MANAGER
-    // Se llenan automáticamente cuando el HUDController se conecta
     private NumberRenderer scoreDisplay;
     private NumberRenderer livesDisplay;
     private Image[] heartImages;
+    public bool hasKey = false;
 
+
+    void Start()
+    {
+        // --- IMPORTANTE: Resetear la llave al iniciar cualquier nivel ---
+        hasKey = false;
+
+        ResetHealth();
+        totalCollectiblesInScene = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None).Length;
+        UpdateAllUI();
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        InitializeLevelData();
+    }
+
+    public void CollectKey()
+    {
+        hasKey = true;
+        Debug.Log("¡Llave conseguida!");
+        // Aquí podrías añadir código para mostrar un icono de llave en la pantalla
+    }
     void Awake()
     {
         if (instance == null)
@@ -40,16 +58,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-        // Solo inicializamos lógica de datos, la UI espera al HUDController
-        // totalCollectiblesInScene se debe buscar en cada nivel nuevo
-        // Para eso usaremos el evento de carga de escena abajo
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        InitializeLevelData();
-    }
-
-    // Esta función se llama sola cada vez que carga un nivel
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         InitializeLevelData();
@@ -63,7 +71,6 @@ public class GameManager : MonoBehaviour
         ResetHealth();
     }
 
-    // --- EL ENCHUFE MÁGICO ---
     public void RegisterHUD(HUDController hud)
     {
         // Recibimos las nuevas conexiones del Canvas nuevo
@@ -74,7 +81,6 @@ public class GameManager : MonoBehaviour
         // Actualizamos todo inmediatamente para que se vea
         UpdateAllUI();
     }
-    // -------------------------
 
     public void TakeDamage(int amount)
     {
@@ -95,7 +101,30 @@ public class GameManager : MonoBehaviour
 
     public bool CanPassLevel()
     {
-        return collectiblesCollected >= totalCollectiblesInScene && score >= scoreToPassLevel;
+        // 1. Verificar requisitos básicos (Objetos y Puntos)
+        bool basicRequirements = collectiblesCollected >= totalCollectiblesInScene && score >= scoreToPassLevel;
+
+        // 2. Verificar requisito especial SOLO para el Nivel 2
+        // Asegúrate de que tu escena se llame EXACTAMENTE "Level2" (respeta mayúsculas)
+        if (SceneManager.GetActiveScene().name == "Level2")
+        {
+            if (!hasKey)
+            {
+                Debug.Log("¡Necesitas la LLAVE para salir de este nivel!");
+                return false; // Si es nivel 2 y no tiene llave, no pasa.
+            }
+        }
+
+        // 3. Si cumple lo básico (y la llave si era el Nivel 2), pasa.
+        if (basicRequirements)
+        {
+            return true;
+        }
+        else
+        {
+            Debug.Log("Faltan objetos o puntos.");
+            return false;
+        }
     }
 
     public void CollectObject(int amount)
