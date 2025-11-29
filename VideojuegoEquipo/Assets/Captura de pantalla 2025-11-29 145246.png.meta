@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: dd9d5e54f4e24d64a9bef7c016508859
+guid: 00be6a782ca8c234fa7dd591198d57ce
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5353841184698615464
-    second: fireball_0
+      213: -5972126770995246913
+    second: Captura de pantalla 2025-11-29 145246_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 50
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: fireball_0
+      name: Captura de pantalla 2025-11-29 145246_0
       rect:
         serializedVersion: 2
-        x: 15
-        y: 14
-        width: 34
-        height: 36
+        x: 0
+        y: 0
+        width: 214
+        height: 202
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8a641dd013aac4a40800000000000000
-      internalID: 5353841184698615464
+      spriteID: fb84a3de75ebe1da0800000000000000
+      internalID: -5972126770995246913
       vertices: []
       indices: 
       edges: []
@@ -147,8 +147,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      fireball_0: 5353841184698615464
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
