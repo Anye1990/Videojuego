@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 5157537329756208968}
   - component: {fileID: 1601306242120148151}
   - component: {fileID: 6969442887274131473}
-  - component: {fileID: 4718986463337042801}
   m_Layer: 6
   m_Name: block_red_0
   m_TagString: Untagged
@@ -152,18 +151,6 @@ MonoBehaviour:
   speed: 2
   distance: 2
 --- !u!114 &6969442887274131473
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4539343226188773798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57426119bace3a44d9ead8b40b6b985c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &4718986463337042801
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
