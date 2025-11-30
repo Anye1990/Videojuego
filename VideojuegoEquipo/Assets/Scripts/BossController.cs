@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BossController : MonoBehaviour
 {
@@ -79,26 +80,42 @@ public class BossController : MonoBehaviour
             Die();
         }
     }
-
     void Die()
     {
         isDead = true;
-        // Animación de muerte
         if (animator) animator.SetTrigger("Dying");
 
-        // Caer al suelo y desactivar colisiones
+        if (hud != null) hud.HideBossUI();
+
         GetComponent<Collider2D>().enabled = false;
         GetComponent<Rigidbody2D>().gravityScale = 1;
 
-        Destroy(gameObject, 3f); // Desaparece a los 3 segundos
+        MessageController msg = Object.FindAnyObjectByType<MessageController>();
 
-        // Opcional: Ocultar la barra al morir tras unos segundos
-        if (hud != null)
+        if (msg != null)
         {
-            hud.HideBossUI(); // O podrías dejarla vacía
+            StartCoroutine(ShowWinMessageRoutine(msg));
         }
+        else
+        {
+            // Si no hay sistema de mensajes, destruimos normal (seguridad)
+            Destroy(gameObject, 3f);
+        }
+    }
 
-        Destroy(gameObject, 3f);
+    // Añade esta función al final de tu script BossController
+    System.Collections.IEnumerator ShowWinMessageRoutine(MessageController msg)
+    {
+        yield return new WaitForSeconds(2.0f); // Espera 2 seg para ver al boss caer
+
+        // Muestra el mensaje y define qué pasa al darle OK (Ir al MainMenu)
+        msg.ShowMessage("¡HAS GANADO!\nDerrotaste al Boss final.", () =>
+        {
+            // Esto se ejecuta al pulsar el botón OK
+            SceneManager.LoadScene("MainMenu");
+        });
+
+        Destroy(gameObject); // Ya podemos borrar al boss
     }
 
     void Update()

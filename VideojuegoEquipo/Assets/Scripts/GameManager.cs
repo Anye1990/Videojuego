@@ -65,10 +65,14 @@ public class GameManager : MonoBehaviour
 
     void InitializeLevelData()
     {
-        totalCollectiblesInScene = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None).Length;
+        score = 0;
         collectiblesCollected = 0;
-        // Si quieres resetear la salud al cambiar de nivel:
+
+        totalCollectiblesInScene = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None).Length;
+
         ResetHealth();
+
+        UpdateAllUI();
     }
 
     public void RegisterHUD(HUDController hud)
@@ -151,11 +155,10 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
     void UpdateAllUI()
     {
-        if (scoreDisplay != null) scoreDisplay.UpdateNumber(score);
-        if (livesDisplay != null) livesDisplay.UpdateNumber(lives);
+        if (scoreDisplay != null) scoreDisplay.UpdateNumber(score); // Actualiza Puntos
+        if (livesDisplay != null) livesDisplay.UpdateNumber(lives); // Actualiza Vidas
         UpdateHeartsUI();
     }
 

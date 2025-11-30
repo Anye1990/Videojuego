@@ -6,61 +6,53 @@ public class HUDController : MonoBehaviour
     [Header("Jugador UI")]
     public NumberRenderer scoreDisplay;
     public NumberRenderer livesDisplay;
-    public Image[] heartImages; // H1, H2, H3
+    public Image[] heartImages;
 
     [Header("Boss UI")]
-    public GameObject bossPanel;    // Para ocultar/mostrar la vida del boss
-    public Image[] bossHeartImages; // Arrastra aquí las 5 imágenes de corazones del boss
-    public Sprite bossFullHeart;    // Sprite corazón lleno (puede ser el mismo del jugador)
-    public Sprite bossEmptyHeart;   // Sprite corazón vacío
+    public GameObject bossPanel;
+    public Image[] bossHeartImages;
+    public Sprite bossFullHeart;
+    public Sprite bossEmptyHeart;
+
+    void Awake()
+    {
+        // 1. Ocultar el panel del boss por defecto al iniciar cualquier nivel
+        if (bossPanel != null)
+        {
+            bossPanel.SetActive(false);
+        }
+    }
 
     void Start()
     {
-        // Al nacer, buscamos al GameManager y nos "enchufamos" a él
         if (GameManager.instance != null)
         {
             GameManager.instance.RegisterHUD(this);
         }
     }
 
+    // El Boss llamará a esto en su Start(), lo que volverá a activar el panel
     public void UpdateBossHealth(int currentHealth, int maxHealth)
     {
-        // 1. Comprobación de seguridad: Si no hay panel o imágenes, no hacemos nada
-        if (bossPanel == null || bossHeartImages == null)
-        {
-            Debug.LogWarning("¡Falta asignar el BossPanel o las imágenes de corazones en el HUDController!");
-            return;
-        }
+        if (bossPanel == null || bossHeartImages == null) return;
 
+        // 2. Si el Boss llama a esta función, encendemos el panel
         bossPanel.SetActive(true);
 
         for (int i = 0; i < bossHeartImages.Length; i++)
         {
-            // 2. Comprobación extra: Si un hueco del array está vacío
             if (bossHeartImages[i] == null) continue;
 
-            if (i < currentHealth)
-            {
-                bossHeartImages[i].sprite = bossFullHeart;
-            }
-            else
-            {
-                bossHeartImages[i].sprite = bossEmptyHeart;
-            }
+            if (i < currentHealth) bossHeartImages[i].sprite = bossFullHeart;
+            else bossHeartImages[i].sprite = bossEmptyHeart;
 
-            if (i < maxHealth)
-            {
-                bossHeartImages[i].enabled = true;
-            }
-            else
-            {
-                bossHeartImages[i].enabled = false;
-            }
+            if (i < maxHealth) bossHeartImages[i].enabled = true;
+            else bossHeartImages[i].enabled = false;
         }
     }
 
     public void HideBossUI()
     {
-        if(bossPanel != null) bossPanel.SetActive(false);
+        if (bossPanel != null) bossPanel.SetActive(false);
     }
 }
