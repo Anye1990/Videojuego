@@ -21,7 +21,6 @@ public class HUDController : MonoBehaviour
         {
             GameManager.instance.RegisterHUD(this);
         }
-        
     }
 
     public void UpdateBossHealth(int currentHealth, int maxHealth)
