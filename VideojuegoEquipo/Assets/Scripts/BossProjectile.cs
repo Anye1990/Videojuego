@@ -42,10 +42,9 @@ public class BossProjectile : MonoBehaviour
             Destroy(gameObject);
         }
         // Si choca con el suelo o paredes (asegúrate que tengan el Layer "Ground" o "Piso")
-        else if (collision.gameObject.layer == LayerMask.NameToLayer("Ground") || collision.CompareTag("Ground"))
-        {
-            Destroy(gameObject);
-        }
-        Debug.Log("Choque con: " + collision.gameObject.name + " | Layer: " + LayerMask.LayerToName(collision.gameObject.layer));
+        //else if (collision.gameObject.layer == LayerMask.NameToLayer("Ground") || collision.CompareTag("Ground"))
+        //{
+        //    Destroy(gameObject);
+        //}
     }
 }

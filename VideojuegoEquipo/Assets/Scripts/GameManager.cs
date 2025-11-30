@@ -161,15 +161,23 @@ public class GameManager : MonoBehaviour
 
     void UpdateHeartsUI()
     {
-        if (heartImages == null) return; 
+        // 1. Si la lista no existe, salimos
+        if (heartImages == null) return;
 
         for (int i = 0; i < heartImages.Length; i++)
         {
-            if (i < currentHealth) heartImages[i].sprite = fullHeart;
-            else heartImages[i].sprite = emptyHeart;
+            if (heartImages[i] == null) continue;
 
-            if (i < maxHealth) heartImages[i].enabled = true;
-            else heartImages[i].enabled = false;
+            // Si la imagen existe, procedemos con la lógica normal
+            if (i < currentHealth)
+                heartImages[i].sprite = fullHeart;
+            else
+                heartImages[i].sprite = emptyHeart;
+
+            if (i < maxHealth)
+                heartImages[i].enabled = true;
+            else
+                heartImages[i].enabled = false;
         }
     }
 }

@@ -22,18 +22,24 @@ public class HUDController : MonoBehaviour
             GameManager.instance.RegisterHUD(this);
         }
         
-        // Ocultamos el panel del boss al inicio (opcional)
-        if(bossPanel != null) bossPanel.SetActive(false);
     }
 
-    // Esta función será llamada por el Boss
     public void UpdateBossHealth(int currentHealth, int maxHealth)
     {
-        if (bossPanel != null) bossPanel.SetActive(true); // Aseguramos que se vea
+        // 1. Comprobación de seguridad: Si no hay panel o imágenes, no hacemos nada
+        if (bossPanel == null || bossHeartImages == null)
+        {
+            Debug.LogWarning("¡Falta asignar el BossPanel o las imágenes de corazones en el HUDController!");
+            return;
+        }
+
+        bossPanel.SetActive(true);
 
         for (int i = 0; i < bossHeartImages.Length; i++)
         {
-            // Lógica de sprites: Lleno o Vacío
+            // 2. Comprobación extra: Si un hueco del array está vacío
+            if (bossHeartImages[i] == null) continue;
+
             if (i < currentHealth)
             {
                 bossHeartImages[i].sprite = bossFullHeart;
@@ -43,7 +49,6 @@ public class HUDController : MonoBehaviour
                 bossHeartImages[i].sprite = bossEmptyHeart;
             }
 
-            // Lógica de activado: Solo mostramos hasta el máximo de vida (por si el boss tiene menos de 5)
             if (i < maxHealth)
             {
                 bossHeartImages[i].enabled = true;
