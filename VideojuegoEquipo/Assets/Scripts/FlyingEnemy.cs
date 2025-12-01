@@ -65,9 +65,6 @@ public class FlyingEnemy : MonoBehaviour
         // 1. ¿Es el jugador?
         if (collision.gameObject.CompareTag("Jugador"))
         {
-            // 2. Analizamos el primer punto de contacto del choque
-            // La "normal" nos dice la dirección del golpe.
-            // Si normal.y es negativo (aprox -1), significa que el golpe vino de ARRIBA hacia abajo sobre la abeja.
 
             // Usamos -0.5f para ser generosos (permite golpear un poco en diagonal)
             if (collision.contacts[0].normal.y < -0.5f)
@@ -91,7 +88,7 @@ public class FlyingEnemy : MonoBehaviour
                 PlayerController player = collision.gameObject.GetComponent<PlayerController>();
                 if (player != null)
                 {
-                    player.TakeDamage(damage);
+                    player.TakeDamage(1, transform);
                 }
             }
         }

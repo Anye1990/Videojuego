@@ -1,50 +1,41 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    [Header("Configuración de Juego")]
+    [Header("Configuracion")]
     public int lives = 3;
     public int maxHealth = 3;
     public int currentHealth;
     public int score = 0;
 
-    [Header("Objetos y Nivel")]
+    [Header("Nivel")]
     public int scoreToPassLevel = 100;
     public int totalCollectiblesInScene;
     public int collectiblesCollected;
+    public bool hasKey = false;
 
-    [Header("Recursos (Sprites)")]
+    // CHECKPOINT Y RESPAWN
+    public Vector3 lastCheckpointPos;
+    public bool checkpointActivated = false;
+    private Vector3 initialLevelPos; // Para recordar donde empezo el nivel
+
+    [Header("UI")]
     public Sprite fullHeart;
     public Sprite emptyHeart;
-
     private NumberRenderer scoreDisplay;
     private NumberRenderer livesDisplay;
     private Image[] heartImages;
-    public bool hasKey = false;
 
+    [Header("Pantallas y Efectos")]
+    public GameObject pauseMenuUI;
+    public Image fadePanel;
+    private bool isPaused = false;
 
-    void Start()
-    {
-        // --- IMPORTANTE: Resetear la llave al iniciar cualquier nivel ---
-        hasKey = false;
-
-        ResetHealth();
-        totalCollectiblesInScene = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None).Length;
-        UpdateAllUI();
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        InitializeLevelData();
-    }
-
-    public void CollectKey()
-    {
-        hasKey = true;
-        Debug.Log("¡Llave conseguida!");
-        // Aquí podrías añadir código para mostrar un icono de llave en la pantalla
-    }
     void Awake()
     {
         if (instance == null)
@@ -58,31 +49,107 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void Start()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        StartCoroutine(DelayedInitialization());
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
+        {
+            TogglePause();
+        }
+    }
+
+    public void TogglePause()
+    {
+        isPaused = !isPaused;
+
+        if (pauseMenuUI != null)
+            pauseMenuUI.SetActive(isPaused);
+
+        if (isPaused)
+            Time.timeScale = 0f;
+        else
+            Time.timeScale = 1f;
+    }
+
+    public void UpdateCheckpoint(Vector3 pos)
+    {
+        lastCheckpointPos = pos;
+        checkpointActivated = true;
+        Debug.Log("Checkpoint Guardado: " + pos);
+    }
+
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // Limpiar referencias viejas
+        heartImages = null;
+        scoreDisplay = null;
+        livesDisplay = null;
+
+        // Al cambiar de nivel, el checkpoint del nivel anterior ya no vale
+        // (A menos que quieras checkpoints entre niveles, pero suele ser mejor resetearlo)
+        checkpointActivated = false;
+
+        StartCoroutine(DelayedInitialization());
+
+        if (fadePanel != null) StartCoroutine(FadeIn());
+    }
+
+    IEnumerator DelayedInitialization()
+    {
+        yield return null;
         InitializeLevelData();
+    }
+
+    IEnumerator FadeIn()
+    {
+        if (fadePanel != null)
+        {
+            fadePanel.gameObject.SetActive(true);
+            Color c = fadePanel.color;
+            for (float alpha = 1f; alpha >= 0; alpha -= Time.deltaTime)
+            {
+                c.a = alpha;
+                fadePanel.color = c;
+                yield return null;
+            }
+            fadePanel.gameObject.SetActive(false);
+        }
     }
 
     void InitializeLevelData()
     {
-        score = 0;
+        Time.timeScale = 1f;
+        isPaused = false;
+        if (pauseMenuUI != null) pauseMenuUI.SetActive(false);
+
+        hasKey = false;
+
+        // Contar objetos
+        var collectibles = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None);
+        totalCollectiblesInScene = (collectibles != null) ? collectibles.Length : 0;
         collectiblesCollected = 0;
 
-        totalCollectiblesInScene = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None).Length;
+        // --- GUARDAR POSICION INICIAL ---
+        GameObject player = GameObject.FindGameObjectWithTag("Jugador");
+        if (player != null)
+        {
+            initialLevelPos = player.transform.position;
+        }
+        // --------------------------------
 
         ResetHealth();
-
         UpdateAllUI();
     }
 
-    public void RegisterHUD(HUDController hud)
+    public void CollectObject(int amount)
     {
-        // Recibimos las nuevas conexiones del Canvas nuevo
-        scoreDisplay = hud.scoreDisplay;
-        livesDisplay = hud.livesDisplay;
-        heartImages = hud.heartImages;
-
-        // Actualizamos todo inmediatamente para que se vea
+        score += amount;
+        collectiblesCollected++;
         UpdateAllUI();
     }
 
@@ -97,47 +164,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void ResetHealth()
-    {
-        currentHealth = maxHealth;
-        UpdateHeartsUI();
-    }
-
-    public bool CanPassLevel()
-    {
-        // 1. Verificar requisitos básicos (Objetos y Puntos)
-        bool basicRequirements = collectiblesCollected >= totalCollectiblesInScene && score >= scoreToPassLevel;
-
-        // 2. Verificar requisito especial SOLO para el Nivel 2
-        // Asegúrate de que tu escena se llame EXACTAMENTE "Level2" (respeta mayúsculas)
-        if (SceneManager.GetActiveScene().name == "Level2")
-        {
-            if (!hasKey)
-            {
-                Debug.Log("¡Necesitas la LLAVE para salir de este nivel!");
-                return false; // Si es nivel 2 y no tiene llave, no pasa.
-            }
-        }
-
-        // 3. Si cumple lo básico (y la llave si era el Nivel 2), pasa.
-        if (basicRequirements)
-        {
-            return true;
-        }
-        else
-        {
-            Debug.Log("Faltan objetos o puntos.");
-            return false;
-        }
-    }
-
-    public void CollectObject(int amount)
-    {
-        score += amount;
-        collectiblesCollected++;
-        UpdateAllUI();
-    }
-
     public void LoseLife()
     {
         lives--;
@@ -145,42 +171,82 @@ public class GameManager : MonoBehaviour
 
         if (lives > 0)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            // No necesitamos llamar ResetHealth aquí, OnSceneLoaded lo hará
+            // --- NUEVA LOGICA: NO RECARGAR ESCENA ---
+            Debug.Log("Vida perdida. Reapareciendo...");
+
+            // 1. Restaurar salud
+            ResetHealth();
+
+            // 2. Encontrar al jugador y moverlo
+            GameObject player = GameObject.FindGameObjectWithTag("Jugador");
+            if (player != null)
+            {
+                // Anular velocidad para que no aparezca cayendo fuerte
+                Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+                if (rb != null) rb.linearVelocity = Vector2.zero;
+
+                // Decidir donde aparece
+                if (checkpointActivated)
+                {
+                    player.transform.position = lastCheckpointPos;
+                }
+                else
+                {
+                    player.transform.position = initialLevelPos;
+                }
+            }
         }
         else
         {
+            // Si mueres del todo, si vamos al menu (se pierde todo)
+            checkpointActivated = false;
             SceneManager.LoadScene("MainMenu");
-            // Al ir al menú, sí destruimos el GM para que se resetee todo el juego
             Destroy(gameObject);
         }
     }
+
+    public void RegisterHUD(HUDController hud)
+    {
+        scoreDisplay = hud.scoreDisplay;
+        livesDisplay = hud.livesDisplay;
+        heartImages = hud.heartImages;
+        UpdateAllUI();
+    }
+
     void UpdateAllUI()
     {
-        if (scoreDisplay != null) scoreDisplay.UpdateNumber(score); // Actualiza Puntos
-        if (livesDisplay != null) livesDisplay.UpdateNumber(lives); // Actualiza Vidas
+        if (scoreDisplay != null) scoreDisplay.UpdateNumber(score);
+        if (livesDisplay != null) livesDisplay.UpdateNumber(lives);
         UpdateHeartsUI();
     }
 
     void UpdateHeartsUI()
     {
-        // 1. Si la lista no existe, salimos
         if (heartImages == null) return;
 
         for (int i = 0; i < heartImages.Length; i++)
         {
             if (heartImages[i] == null) continue;
 
-            // Si la imagen existe, procedemos con la lógica normal
-            if (i < currentHealth)
-                heartImages[i].sprite = fullHeart;
-            else
-                heartImages[i].sprite = emptyHeart;
+            if (i < currentHealth) heartImages[i].sprite = fullHeart;
+            else heartImages[i].sprite = emptyHeart;
 
-            if (i < maxHealth)
-                heartImages[i].enabled = true;
-            else
-                heartImages[i].enabled = false;
+            heartImages[i].enabled = (i < maxHealth);
         }
+    }
+
+    void ResetHealth()
+    {
+        currentHealth = maxHealth;
+        UpdateHeartsUI();
+    }
+
+    public void CollectKey() { hasKey = true; }
+
+    public bool CanPassLevel()
+    {
+        bool basic = collectiblesCollected >= totalCollectiblesInScene && score >= scoreToPassLevel;
+        if (SceneManager.GetActiveScene().name == "Level2" && !hasKey) return false;
+        return basic;
     }
 }

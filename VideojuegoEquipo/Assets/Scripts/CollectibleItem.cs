@@ -2,29 +2,29 @@ using UnityEngine;
 
 public class CollectibleItem : MonoBehaviour
 {
-    public enum ItemType { Moneda, Gema, Estrella } // Tipos para organizarnos
+    public enum ItemType { Moneda, Gema, Estrella }
     public ItemType tipoDeObjeto;
-
-    [Tooltip("Cuántos puntos da este objeto")]
     public int valorEnPuntos = 10;
-
-    [Tooltip("Sonido al recoger (Opcional)")]
     public AudioClip collectSound;
+
+    [Header("Visual")]
+    public GameObject floatingTextPrefab; // Asigna aquí tu Prefab de texto
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Jugador"))
         {
-            // 1. Sumar puntos y contar el objeto en el GameManager
             GameManager.instance.CollectObject(valorEnPuntos);
 
-            // 2. Reproducir sonido (si tienes un AudioSource en el objeto o usas PlayClipAtPoint)
             if (collectSound != null)
-            {
                 AudioSource.PlayClipAtPoint(collectSound, transform.position);
+
+            // TEXTO FLOTANTE
+            if (floatingTextPrefab != null)
+            {
+                Instantiate(floatingTextPrefab, transform.position, Quaternion.identity);
             }
 
-            // 3. Destruir el objeto
             Destroy(gameObject);
         }
     }
