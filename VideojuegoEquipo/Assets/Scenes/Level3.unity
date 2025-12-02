@@ -2512,10 +2512,15 @@ MonoBehaviour:
   attackRange: 7
   stopDistance: 3
   maxHealth: 5
+  currentHealth: 0
   projectilePrefab: {fileID: 2384902168293557770, guid: 5956d23816a433346863e744d4dac25f, type: 3}
   firePoint: {fileID: 0}
   attackCooldown: 2
+  bounceUpForce: 12
+  bounceBackForce: 8
+  invulnerabilityTime: 2
   animator: {fileID: 1229360104}
+  damageColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!50 &1229360107
 Rigidbody2D:
   serializedVersion: 5
@@ -2528,7 +2533,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 100
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 0

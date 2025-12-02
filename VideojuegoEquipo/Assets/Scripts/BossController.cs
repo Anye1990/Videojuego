@@ -1,121 +1,61 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
+[DisallowMultipleComponent] // Seguridad para no ponerlo 2 veces
 public class BossController : MonoBehaviour
 {
     [Header("Configuración Boss")]
-    public Transform player;           // Arrastra al Jugador aquí
-    public float speed = 2.0f;         // Velocidad de movimiento
-    public float attackRange = 5.0f;   // Distancia para empezar a disparar
-    public float stopDistance = 3.0f;  // Distancia para detenerse y disparar
+    public Transform player;
+    public float speed = 2.0f;
+    public float attackRange = 5.0f;
+    public float stopDistance = 3.0f;
     public int maxHealth = 5;
+    [SerializeField] private int currentHealth; // Visible para debug
 
-    [Header("Combate")]
-    public GameObject projectilePrefab; // Arrastra aquí el Prefab de tu proyectil
-    public Transform firePoint;         // Punto desde donde sale el disparo (opcional, usa transform si no tienes)
-    public float attackCooldown = 2.0f; // Tiempo entre disparos
-
-    [Header("Animaciones")]
-    public Animator animator;
-
-    private int currentHealth;
+    [Header("Combate (Disparos)")]
+    public GameObject projectilePrefab;
+    public Transform firePoint;
+    public float attackCooldown = 2.0f;
     private float lastAttackTime;
+
+    [Header("Defensa (Rebote e Invulnerabilidad)")]
+    public float bounceUpForce = 12f;    // Cuánto salta el jugador al golpearle
+    public float bounceBackForce = 8f;   // Cuánto se aleja el jugador
+    public float invulnerabilityTime = 2.0f; // Tiempo que se queda rojo
+    private bool isInvulnerable = false;
+
+    [Header("Visual")]
+    public Animator animator;
+    public Color damageColor = Color.red; // Color al recibir daño
+    private SpriteRenderer[] allRenderers;
+    private Color[] originalColors;
+
     private bool isDead = false;
     private bool isFacingRight = true;
-
-    [Header("Configuración Boss")]
-
-
-    // Referencia al HUD
     private HUDController hud;
 
     void Start()
     {
         currentHealth = maxHealth;
 
-        // Buscar el HUD en la escena
+        // 1. Buscar HUD y Jugador
         hud = Object.FindAnyObjectByType<HUDController>();
+        if (hud != null) hud.UpdateBossHealth(currentHealth, maxHealth);
 
-        // Actualizar la UI al iniciar para que se vean los 5 corazones llenos
-        if (hud != null)
-        {
-            hud.UpdateBossHealth(currentHealth, maxHealth);
-        }
-
-
-        // Buscar al jugador si no se asignó
         if (player == null)
         {
             GameObject p = GameObject.FindGameObjectWithTag("Jugador");
             if (p != null) player = p.transform;
         }
-    }
 
-    public void TakeDamage(int damage)
-    {
-        if (isDead) return;
-
-        currentHealth -= damage;
-
-        // Animación de daño
-        if (animator) animator.SetTrigger("Hurt");
-
-        if (currentHealth <= 0)
+        // 2. Configurar Colores para todas las partes del cuerpo
+        allRenderers = GetComponentsInChildren<SpriteRenderer>();
+        originalColors = new Color[allRenderers.Length];
+        for (int i = 0; i < allRenderers.Length; i++)
         {
-            Die();
+            originalColors[i] = allRenderers[i].color;
         }
-
-        currentHealth -= damage;
-
-        // ACTUALIZAR HUD AQUÍ
-        if (hud != null)
-        {
-            hud.UpdateBossHealth(currentHealth, maxHealth);
-        }
-
-        if (animator) animator.SetTrigger("Hurt");
-
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-    }
-    void Die()
-    {
-        isDead = true;
-        if (animator) animator.SetTrigger("Dying");
-
-        if (hud != null) hud.HideBossUI();
-
-        GetComponent<Collider2D>().enabled = false;
-        GetComponent<Rigidbody2D>().gravityScale = 1;
-
-        MessageController msg = Object.FindAnyObjectByType<MessageController>();
-
-        if (msg != null)
-        {
-            StartCoroutine(ShowWinMessageRoutine(msg));
-        }
-        else
-        {
-            // Si no hay sistema de mensajes, destruimos normal (seguridad)
-            Destroy(gameObject, 3f);
-        }
-    }
-
-    // Añade esta función al final de tu script BossController
-    System.Collections.IEnumerator ShowWinMessageRoutine(MessageController msg)
-    {
-        yield return new WaitForSeconds(2.0f); // Espera 2 seg para ver al boss caer
-
-        // Muestra el mensaje y define qué pasa al darle OK (Ir al MainMenu)
-        msg.ShowMessage("¡HAS GANADO!\nDerrotaste al Boss final.", () =>
-        {
-            // Esto se ejecuta al pulsar el botón OK
-            SceneManager.LoadScene("MainMenu");
-        });
-
-        Destroy(gameObject); // Ya podemos borrar al boss
     }
 
     void Update()
@@ -124,19 +64,18 @@ public class BossController : MonoBehaviour
 
         float distance = Vector2.Distance(transform.position, player.position);
 
-        // 1. Mirar siempre al jugador
+        // 1. Mirar al jugador
         LookAtPlayer();
 
-        // 2. Movimiento y Ataque
+        // 2. Movimiento
         if (distance < attackRange)
         {
             if (distance > stopDistance)
             {
-                // Moverse hacia el jugador si está lejos
                 transform.position = Vector2.MoveTowards(transform.position, player.position, speed * Time.deltaTime);
             }
 
-            // Disparar si pasó el tiempo
+            // 3. Disparar
             if (Time.time > lastAttackTime + attackCooldown)
             {
                 Shoot();
@@ -144,17 +83,139 @@ public class BossController : MonoBehaviour
         }
     }
 
+    // --- LÓGICA DE COLISIÓN Y REBOTE ---
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (isDead) return;
+
+        if (collision.gameObject.CompareTag("Jugador"))
+        {
+            // Detectar golpe desde ARRIBA
+            if (collision.contacts[0].normal.y < -0.5f)
+            {
+                // 1. SIEMPRE EMPUJAR AL JUGADOR (Para que no se quede pegado)
+                EmpujarJugador(collision.gameObject);
+
+                // 2. SOLO DAÑAR SI NO ES INVULNERABLE
+                if (!isInvulnerable)
+                {
+                    TakeDamage(1);
+                }
+            }
+            else
+            {
+                // Golpe lateral: Dañar al jugador
+                PlayerController playerScript = collision.gameObject.GetComponent<PlayerController>();
+                if (playerScript != null)
+                {
+                    playerScript.TakeDamage(1, transform); // Pasamos transform para el knockback
+                }
+            }
+        }
+    }
+
+    void EmpujarJugador(GameObject playerObj)
+    {
+        PlayerController pc = playerObj.GetComponent<PlayerController>();
+        Rigidbody2D rb = playerObj.GetComponent<Rigidbody2D>();
+
+        if (rb != null)
+        {
+            // Calcular dirección para alejarlo (izquierda o derecha)
+            float directionX = (playerObj.transform.position.x < transform.position.x) ? -1 : 1;
+            Vector2 fuerza = new Vector2(directionX * bounceBackForce, bounceUpForce);
+
+            // Si el jugador tiene el script nuevo con la función Rebote(), la usamos
+            if (pc != null)
+            {
+                // INTENTA USAR LA FUNCION NUEVA QUE TE DI ANTES
+                // Si te da error aquí es porque no actualizaste PlayerController.cs
+                // Si no la tienes, descomenta la linea de abajo y borra la de pc.Rebote
+
+                pc.Rebote(fuerza);
+                // rb.linearVelocity = Vector2.zero; rb.AddForce(fuerza, ForceMode2D.Impulse);
+            }
+            else
+            {
+                // Fallback por si acaso
+                rb.linearVelocity = Vector2.zero;
+                rb.AddForce(fuerza, ForceMode2D.Impulse);
+            }
+        }
+    }
+    // -----------------------------------
+
+    public void TakeDamage(int damage)
+    {
+        if (isDead || isInvulnerable) return;
+
+        currentHealth -= damage;
+
+        // Actualizar HUD
+        if (hud != null) hud.UpdateBossHealth(currentHealth, maxHealth);
+
+        // Animación
+        if (animator) animator.SetTrigger("Hurt");
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+        else
+        {
+            // Activar Invulnerabilidad
+            StartCoroutine(InvulnerabilityRoutine());
+        }
+    }
+
+    IEnumerator InvulnerabilityRoutine()
+    {
+        isInvulnerable = true;
+
+        // Poner todo rojo
+        foreach (var sr in allRenderers) sr.color = damageColor;
+
+        yield return new WaitForSeconds(invulnerabilityTime);
+
+        // Volver a color normal
+        for (int i = 0; i < allRenderers.Length; i++)
+        {
+            if (allRenderers[i] != null) allRenderers[i].color = originalColors[i];
+        }
+
+        isInvulnerable = false;
+    }
+
+    void Die()
+    {
+        isDead = true;
+        if (animator) animator.SetTrigger("Dying");
+        if (hud != null) hud.HideBossUI();
+
+        // Desactivar físicas del boss para que caiga o no moleste
+        GetComponent<Collider2D>().enabled = false;
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb) rb.gravityScale = 1; // Cae al vacío si quieres
+
+        MessageController msg = Object.FindAnyObjectByType<MessageController>();
+        if (msg != null) StartCoroutine(ShowWinMessageRoutine(msg));
+        else Destroy(gameObject, 3f);
+    }
+
+    IEnumerator ShowWinMessageRoutine(MessageController msg)
+    {
+        yield return new WaitForSeconds(2.0f);
+        msg.ShowMessage("¡HAS GANADO!\nDerrotaste al Boss final.", () =>
+        {
+            SceneManager.LoadScene("MainMenu");
+        });
+        Destroy(gameObject);
+    }
+
     void LookAtPlayer()
     {
-        // Girar el sprite dependiendo de dónde esté el jugador
-        if (player.position.x > transform.position.x && !isFacingRight)
-        {
-            Flip();
-        }
-        else if (player.position.x < transform.position.x && isFacingRight)
-        {
-            Flip();
-        }
+        if (player.position.x > transform.position.x && !isFacingRight) Flip();
+        else if (player.position.x < transform.position.x && isFacingRight) Flip();
     }
 
     void Flip()
@@ -168,44 +229,12 @@ public class BossController : MonoBehaviour
     void Shoot()
     {
         lastAttackTime = Time.time;
-
-        // Usamos "Attack" si tienes esa animación, si no, el Boss dispara igual
         if (animator) animator.SetTrigger("Attack");
 
-        // Crear el proyectil
         if (projectilePrefab != null)
         {
-            // Si tienes un objeto 'firePoint' úsalo, si no, usa la posición del boss
             Vector3 spawnPos = firePoint != null ? firePoint.position : transform.position;
             Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
-        }
-    }
-
-    // Lógica de colisión (Saltar sobre él)
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (isDead) return;
-
-        if (collision.gameObject.CompareTag("Jugador"))
-        {
-            // Detectar si el golpe viene de ARRIBA (Stomp)
-            if (collision.contacts[0].normal.y < -0.5f)
-            {
-                TakeDamage(1); // Dañar al Boss
-
-                // Impulsar al jugador hacia arriba
-                Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
-                if (playerRb != null) playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, 8f);
-            }
-            else
-            {
-                // Si chocan de lado, el jugador recibe daño
-                PlayerController playerScript = collision.gameObject.GetComponent<PlayerController>();
-                if (playerScript != null)
-                {
-                    playerScript.TakeDamage(1);
-                }
-            }
         }
     }
 }

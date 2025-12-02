@@ -7,13 +7,13 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    [Header("Configuracion")]
+    [Header("Configuracion Global")]
     public int lives = 3;
     public int maxHealth = 3;
     public int currentHealth;
     public int score = 0;
 
-    [Header("Nivel")]
+    [Header("Estado del Nivel")]
     public int scoreToPassLevel = 100;
     public int totalCollectiblesInScene;
     public int collectiblesCollected;
@@ -22,9 +22,9 @@ public class GameManager : MonoBehaviour
     // CHECKPOINT Y RESPAWN
     public Vector3 lastCheckpointPos;
     public bool checkpointActivated = false;
-    private Vector3 initialLevelPos; // Para recordar donde empezo el nivel
+    private Vector3 initialLevelPos; // Guardamos donde empieza el nivel por si muere sin checkpoint
 
-    [Header("UI")]
+    [Header("UI Referencias")]
     public Sprite fullHeart;
     public Sprite emptyHeart;
     private NumberRenderer scoreDisplay;
@@ -51,6 +51,9 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // Solo la primera vez que se abre el juego reseteamos la salud
+        ResetHealth();
+
         SceneManager.sceneLoaded += OnSceneLoaded;
         StartCoroutine(DelayedInitialization());
     }
@@ -85,13 +88,12 @@ public class GameManager : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Limpiar referencias viejas
+        // Limpiar referencias de UI viejas
         heartImages = null;
         scoreDisplay = null;
         livesDisplay = null;
 
-        // Al cambiar de nivel, el checkpoint del nivel anterior ya no vale
-        // (A menos que quieras checkpoints entre niveles, pero suele ser mejor resetearlo)
+        // Resetear checkpoint al entrar a un nivel NUEVO
         checkpointActivated = false;
 
         StartCoroutine(DelayedInitialization());
@@ -132,17 +134,15 @@ public class GameManager : MonoBehaviour
         // Contar objetos
         var collectibles = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None);
         totalCollectiblesInScene = (collectibles != null) ? collectibles.Length : 0;
-        collectiblesCollected = 0;
+        collectiblesCollected = 0; // Esto se reinicia por nivel para calcular si puedes pasar
 
-        // --- GUARDAR POSICION INICIAL ---
+        // --- GUARDAR POSICION INICIAL DEL NIVEL ---
         GameObject player = GameObject.FindGameObjectWithTag("Jugador");
         if (player != null)
         {
             initialLevelPos = player.transform.position;
         }
-        // --------------------------------
 
-        ResetHealth();
         UpdateAllUI();
     }
 
@@ -171,34 +171,35 @@ public class GameManager : MonoBehaviour
 
         if (lives > 0)
         {
-            // --- NUEVA LOGICA: NO RECARGAR ESCENA ---
             Debug.Log("Vida perdida. Reapareciendo...");
 
-            // 1. Restaurar salud
+            // AL MORIR: Si reseteamos salud (para poder seguir jugando)
             ResetHealth();
 
-            // 2. Encontrar al jugador y moverlo
+            // MOVER AL JUGADOR (Sin recargar escena)
             GameObject player = GameObject.FindGameObjectWithTag("Jugador");
             if (player != null)
             {
-                // Anular velocidad para que no aparezca cayendo fuerte
+                // Resetear fisicas
                 Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
                 if (rb != null) rb.linearVelocity = Vector2.zero;
 
-                // Decidir donde aparece
+                // Elegir destino: Checkpoint o Inicio
                 if (checkpointActivated)
                 {
                     player.transform.position = lastCheckpointPos;
+                    Debug.Log("Respawn en Checkpoint");
                 }
                 else
                 {
                     player.transform.position = initialLevelPos;
+                    Debug.Log("Respawn en Inicio del Nivel");
                 }
             }
         }
         else
         {
-            // Si mueres del todo, si vamos al menu (se pierde todo)
+            // Game Over real
             checkpointActivated = false;
             SceneManager.LoadScene("MainMenu");
             Destroy(gameObject);
