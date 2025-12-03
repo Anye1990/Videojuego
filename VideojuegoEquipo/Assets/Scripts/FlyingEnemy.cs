@@ -8,6 +8,20 @@ public class FlyingEnemy : MonoBehaviour
     private int currentPointIndex = 0;
     public bool spriteMiraIzquierda = true;
 
+    void Start()
+    {
+        // Esto suelta los puntos para que no se muevan junto con el enemigo
+        if (patrolPoints != null)
+        {
+            foreach (Transform punto in patrolPoints)
+            {
+                if (punto != null)
+                {
+                    punto.SetParent(null);
+                }
+            }
+        }
+    }
     void Update()
     {
         if (patrolPoints == null || patrolPoints.Length == 0) return;
