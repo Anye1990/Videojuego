@@ -7,9 +7,13 @@ public class HideOnRespawn : MonoBehaviour
         // Preguntamos al GameManager: "¿Vengo de un Checkpoint?"
         if (GameManager.instance != null && GameManager.instance.checkpointActive)
         {
-            // Si es verdad, me desactivo inmediatamente
+            // --- SOLUCIÓN AL CONGELAMIENTO ---
+            // Forzamos que el tiempo corra, por si el panel lo había pausado al nacer
+            Time.timeScale = 1f;
+
+            // Nos desactivamos
             gameObject.SetActive(false);
-            Debug.Log("Panel ocultado por Respawn");
+            Debug.Log("Panel ocultado por Respawn y tiempo reanudado.");
         }
     }
 }

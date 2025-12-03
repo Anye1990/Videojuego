@@ -23,8 +23,11 @@ public class GameManager : MonoBehaviour
     public Sprite emptyHeart;
 
     [Header("Sistema de Checkpoint")]
-    public Vector3 lastCheckPointPos; // Donde reapareceremos
-    public bool checkpointActive = false; // Si hemos tocado un checkpoint
+    public Vector3 lastCheckPointPos;
+    public bool checkpointActive = false;
+
+    // --- CAMBIO 1: Variable para saber si debemos curar al cargar ---
+    private bool restoreHealthOnLoad = false;
 
     private NumberRenderer scoreDisplay;
     private NumberRenderer livesDisplay;
@@ -36,7 +39,7 @@ public class GameManager : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
-            SceneManager.sceneLoaded += OnSceneLoaded; // Suscribirse al evento de carga
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
@@ -46,14 +49,33 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Inicialización normal
+        hasKey = false;
+        // Al iniciar el juego desde cero, sí empezamos con salud llena
+        ResetHealth();
+
         InitializeLevelData();
+        UpdateAllUI();
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // ... (código de limpiar UI que ya tienes) ...
+        // 1. Limpiar referencias viejas
+        heartImages = null;
+        scoreDisplay = null;
+        livesDisplay = null;
 
+        // 2. Inicializar datos del nivel
+        InitializeLevelData();
+
+        // --- CAMBIO 2: Solo reseteamos salud si venimos de una muerte ---
+        if (restoreHealthOnLoad)
+        {
+            ResetHealth();
+            restoreHealthOnLoad = false; // Apagamos la bandera
+        }
+        // Si no, mantenemos la salud que traíamos del nivel anterior
+
+        // 3. Lógica de Checkpoint
         if (checkpointActive)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Jugador");
@@ -61,44 +83,55 @@ public class GameManager : MonoBehaviour
             {
                 player.transform.position = lastCheckPointPos + (Vector3.up * 1.5f);
 
-                // Aseguramos que las físicas y el tiempo estén activos
                 Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-                if (rb != null) rb.linearVelocity = Vector2.zero; // Reseteamos velocidad
+                if (rb != null) rb.linearVelocity = Vector2.zero;
             }
 
-            // ... (código de desactivar panel) ...
+            GameObject msgPanel = GameObject.Find("MessagePanel");
+            if (msgPanel != null) msgPanel.SetActive(false);
         }
 
-        // --- SEGURO ANTI-CONGELAMIENTO ---
-        // A veces el tiempo se queda en 0 si hubo una pausa previa. Lo forzamos a 1.
         Time.timeScale = 1f;
     }
 
     void InitializeLevelData()
     {
-        hasKey = false;
-        collectiblesCollected = 0;
         totalCollectiblesInScene = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None).Length;
+        collectiblesCollected = 0;
+        hasKey = false;
 
-        // Reiniciamos la salud, pero NO las vidas ni el checkpoint
-        ResetHealth();
+        // --- CAMBIO IMPORTANTE: ---
+        // Quitamos ResetHealth() de aquí. 
+        // Ya no curamos automáticamente al cambiar de nivel.
+    }
+
+    public void LoseLife()
+    {
+        lives--;
         UpdateAllUI();
-    }
 
-    // --- NUEVO MÉTODO PARA ACTIVAR CHECKPOINT ---
-    public void ActivateCheckpoint(Vector3 position)
-    {
-        lastCheckPointPos = position;
-        checkpointActive = true;
-        Debug.Log("Checkpoint Activado en: " + position);
-    }
+        if (lives > 0)
+        {
+            // --- CAMBIO 3: Avisamos que al recargar, debemos tener vida llena ---
+            restoreHealthOnLoad = true;
 
-    // --- MODIFICACIÓN IMPORTANTE: Resetear Checkpoints al cambiar de nivel real ---
-    // Llama a esto desde LevelExit.cs antes de cargar el siguiente nivel
-    public void ResetCheckpointData()
-    {
-        checkpointActive = false;
-        lastCheckPointPos = Vector3.zero;
+            // Usamos tu transición si existe
+            if (LevelTransition.instance != null)
+                LevelTransition.instance.LoadScene(SceneManager.GetActiveScene().name);
+            else
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+        else
+        {
+            // Game Over
+            ResetCheckpointData();
+            if (LevelTransition.instance != null)
+                LevelTransition.instance.LoadScene("MainMenu");
+            else
+                SceneManager.LoadScene("MainMenu");
+
+            Destroy(gameObject, 1f);
+        }
     }
 
     public void RegisterHUD(HUDController hud)
@@ -126,15 +159,28 @@ public class GameManager : MonoBehaviour
         UpdateHeartsUI();
     }
 
+    // ... Resto de tus métodos (ActivateCheckpoint, CanPassLevel, CollectObject, etc.) siguen igual ...
+
+    public void ActivateCheckpoint(Vector3 position)
+    {
+        lastCheckPointPos = position;
+        checkpointActive = true;
+        Debug.Log("Checkpoint Activado en: " + position);
+    }
+
+    public void ResetCheckpointData()
+    {
+        checkpointActive = false;
+        lastCheckPointPos = Vector3.zero;
+    }
+
     public bool CanPassLevel()
     {
         bool basicRequirements = collectiblesCollected >= totalCollectiblesInScene && score >= scoreToPassLevel;
-
         if (SceneManager.GetActiveScene().name == "Level2")
         {
             if (!hasKey) return false;
         }
-
         return basicRequirements;
     }
 
@@ -150,32 +196,6 @@ public class GameManager : MonoBehaviour
         hasKey = true;
     }
 
-    public void LoseLife()
-    {
-        lives--;
-        UpdateAllUI();
-
-        if (lives > 0)
-        {
-            // Recargar la escena actual (OnSceneLoaded se encargará de mover al PJ al checkpoint)
-            if (LevelTransition.instance != null)
-                LevelTransition.instance.LoadScene(SceneManager.GetActiveScene().name);
-            else
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        }
-        else
-        {
-            // Game Over real: Reiniciamos todo
-            ResetCheckpointData(); // Borramos checkpoint para que empiece de cero
-            if (LevelTransition.instance != null)
-                LevelTransition.instance.LoadScene("MainMenu");
-            else
-                SceneManager.LoadScene("MainMenu");
-
-            Destroy(gameObject, 1f);
-        }
-    }
-
     void UpdateAllUI()
     {
         if (scoreDisplay != null) scoreDisplay.UpdateNumber(score);
@@ -185,7 +205,6 @@ public class GameManager : MonoBehaviour
 
     void UpdateHeartsUI()
     {
-        // Si no hay array asignado, no hacemos nada
         if (heartImages == null) return;
 
         for (int i = 0; i < heartImages.Length; i++)
