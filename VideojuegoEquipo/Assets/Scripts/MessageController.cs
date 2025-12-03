@@ -11,6 +11,25 @@ public class MessageController : MonoBehaviour
 
     // Guardamos una acción para saber qué hacer cuando se pulse el botón
     private Action onCloseAction;
+    public bool isPaused = false;
+
+    public void ContinuarJuego()
+    {
+        // 1. Restaurar la velocidad del juego
+        Time.timeScale = 1f;
+
+        // 2. Ocultar el panel (ESTA ES LA LÍNEA QUE TE FALTA)
+        messagePanel.SetActive(false);
+
+        isPaused = false;
+    }
+
+    public void PausarJuego()
+    {
+        Time.timeScale = 0f;
+        messagePanel.SetActive(true); // Mostrar el panel
+        isPaused = true;
+    }
 
     void Start()
     {

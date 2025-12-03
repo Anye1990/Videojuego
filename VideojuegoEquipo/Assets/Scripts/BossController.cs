@@ -35,6 +35,10 @@ public class BossController : MonoBehaviour
     private bool isFacingRight = true;
     private HUDController hud;
 
+    [Header("Límites de Vuelo")]
+    public float alturaMaxima = 2.0f; // Ajusta este valor en el Inspector
+    public bool usarLimiteAltura = true;
+
     void Start()
     {
         currentHealth = maxHealth;
@@ -79,6 +83,15 @@ public class BossController : MonoBehaviour
             if (Time.time > lastAttackTime + attackCooldown)
             {
                 Shoot();
+            }
+        }
+
+        if (usarLimiteAltura)
+        {
+            // Si el enemigo sube más de la altura permitida, lo forzamos a bajar
+            if (transform.position.y > alturaMaxima)
+            {
+                transform.position = new Vector3(transform.position.x, alturaMaxima, transform.position.z);
             }
         }
     }

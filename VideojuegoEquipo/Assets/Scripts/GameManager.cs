@@ -36,6 +36,10 @@ public class GameManager : MonoBehaviour
     public Image fadePanel;
     private bool isPaused = false;
 
+    [Header("Límites de Vuelo")]
+    public float alturaMaxima = 2.0f; // Ajusta este valor en el Inspector
+    public bool usarLimiteAltura = true;
+
     void Awake()
     {
         if (instance == null)
@@ -63,6 +67,15 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
         {
             TogglePause();
+        }
+
+        if (usarLimiteAltura)
+        {
+            // Si el enemigo sube más de la altura permitida, lo forzamos a bajar
+            if (transform.position.y > alturaMaxima)
+            {
+                transform.position = new Vector3(transform.position.x, alturaMaxima, transform.position.z);
+            }
         }
     }
 
@@ -249,5 +262,9 @@ public class GameManager : MonoBehaviour
         bool basic = collectiblesCollected >= totalCollectiblesInScene && score >= scoreToPassLevel;
         if (SceneManager.GetActiveScene().name == "Level2" && !hasKey) return false;
         return basic;
+    }
+    void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }
