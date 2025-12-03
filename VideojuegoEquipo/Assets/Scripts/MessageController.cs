@@ -1,72 +1,75 @@
 using UnityEngine;
-using TMPro; // Necesario para el texto
-using UnityEngine.SceneManagement; // Necesario para cambiar escenas
-using System; // Necesario para las Acciones
+using TMPro; // Si usas TextMeshPro
+using UnityEngine.SceneManagement;
 
 public class MessageController : MonoBehaviour
 {
     [Header("Referencias UI")]
-    public GameObject messagePanel; // Arrastra aquí tu Panel completo
-    public TextMeshProUGUI messageText; // Arrastra aquí el texto del mensaje
+    public GameObject messagePanel;      
+    public TextMeshProUGUI messageText; 
 
-    // Guardamos una acción para saber qué hacer cuando se pulse el botón
-    private Action onCloseAction;
-    public bool isPaused = false;
+    [Header("Configuración del Panel")]
+    public bool esPanelInicio = false;   
+    public bool esPanelPausa = false;    
 
-    public void ContinuarJuego()
-    {
-        // 1. Restaurar la velocidad del juego
-        Time.timeScale = 1f;
-
-        // 2. Ocultar el panel (ESTA ES LA LÍNEA QUE TE FALTA)
-        messagePanel.SetActive(false);
-
-        isPaused = false;
-    }
-
-    public void PausarJuego()
-    {
-        Time.timeScale = 0f;
-        messagePanel.SetActive(true); // Mostrar el panel
-        isPaused = true;
-    }
+    // Estado interno
+    private bool estaPausado = false;
 
     void Start()
     {
-        // Nos aseguramos de que esté cerrado al iniciar por si acaso
-        if (messagePanel != null) messagePanel.SetActive(false);
-    }
-
-    // Función para llamar desde otros scripts
-    public void ShowMessage(string text, Action onClosing = null)
-    {
-        if (messagePanel == null) return;
-
-        // 1. Poner el texto
-        messageText.text = text;
-
-        // 2. Guardar qué hacer al cerrar (si es null, solo cerrará)
-        onCloseAction = onClosing;
-
-        // 3. Mostrar panel y PAUSAR el juego
-        messagePanel.SetActive(true);
-        Time.timeScale = 0f; // El tiempo se detiene (nadie se mueve)
-    }
-
-    // Esta función se conecta al botón "OK" del UI
-    public void CloseMessage()
-    {
-        // 1. Reanudar el tiempo
-        Time.timeScale = 1f;
-
-        // 2. Ocultar panel
-        messagePanel.SetActive(false);
-
-        // 3. Ejecutar la acción pendiente (ej. ir al menú) si existe
-        if (onCloseAction != null)
+        // Lógica para el PANEL DE INICIO
+        if (esPanelInicio)
         {
-            onCloseAction.Invoke();
-            onCloseAction = null; // Limpiar
+        }
+        // Lógica para el PANEL DE PAUSA
+        else if (esPanelPausa)
+        {
+            // Nos aseguramos que arranque apagado
+            if (messagePanel != null) messagePanel.SetActive(false);
+        }
+    }
+
+    void Update()
+    {
+        if (esPanelPausa)
+        {
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                if (estaPausado)
+                {
+                    Continuar(); // Si ya está pausado, quita la pausa
+                }
+                else
+                {
+                    // Solo pausa si el tiempo corre (para evitar pausar encima del menú de inicio)
+                    if (Time.timeScale > 0)
+                    {
+                        ShowMessage("PAUSA");
+                    }
+                }
+            }
+        }
+    }
+
+    public void ShowMessage(string texto)
+    {
+        if (messagePanel != null)
+        {
+            messagePanel.SetActive(true);
+            if (messageText != null) messageText.text = texto;
+
+            Time.timeScale = 0f; // Congelar el tiempo
+            estaPausado = true;
+        }
+    }
+
+    public void Continuar()
+    {
+        if (messagePanel != null)
+        {
+            messagePanel.SetActive(false); // Ocultar panel
+            Time.timeScale = 1f;           // Reanudar tiempo
+            estaPausado = false;
         }
     }
 }

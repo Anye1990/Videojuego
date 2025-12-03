@@ -1481,7 +1481,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 6794923958231830396}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MessageController, Assembly-CSharp
         m_MethodName: CloseMessage
         m_Mode: 1
@@ -1715,7 +1715,6 @@ GameObject:
   - component: {fileID: 6937130894147098330}
   - component: {fileID: 2939498063911468407}
   - component: {fileID: 9010659297014776431}
-  - component: {fileID: 6794923958231830396}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1837,20 +1836,6 @@ MonoBehaviour:
   - {fileID: 4303483426648483963}
   bossFullHeart: {fileID: -5343243385429368126, guid: 66662ee28d381cc458fa366d51c09847, type: 3}
   bossEmptyHeart: {fileID: 3184002201865105124, guid: 3e2d2a966b949ba4dbff34d436718289, type: 3}
---- !u!114 &6794923958231830396
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6016831132965472461}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a17c379006f9adf49989454423a00efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  messagePanel: {fileID: 6006076239424534359}
-  messageText: {fileID: 1353346427461382652}
 --- !u!1 &6119010513844337642
 GameObject:
   m_ObjectHideFlags: 0

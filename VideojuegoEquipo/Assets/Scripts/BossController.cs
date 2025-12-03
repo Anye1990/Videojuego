@@ -218,10 +218,8 @@ public class BossController : MonoBehaviour
     IEnumerator ShowWinMessageRoutine(MessageController msg)
     {
         yield return new WaitForSeconds(2.0f);
-        msg.ShowMessage("¡HAS GANADO!\nDerrotaste al Boss final.", () =>
-        {
-            SceneManager.LoadScene("MainMenu");
-        });
+        msg.ShowMessage("¡HAS GANADO!\nDerrotaste al Boss final.");
+        SceneManager.LoadScene("MainMenu");
         Destroy(gameObject);
     }
 

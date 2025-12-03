@@ -36,10 +36,6 @@ public class GameManager : MonoBehaviour
     public Image fadePanel;
     private bool isPaused = false;
 
-    [Header("Límites de Vuelo")]
-    public float alturaMaxima = 2.0f; // Ajusta este valor en el Inspector
-    public bool usarLimiteAltura = true;
-
     void Awake()
     {
         if (instance == null)
@@ -67,16 +63,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
         {
             TogglePause();
-        }
-
-        if (usarLimiteAltura)
-        {
-            // Si el enemigo sube más de la altura permitida, lo forzamos a bajar
-            if (transform.position.y > alturaMaxima)
-            {
-                transform.position = new Vector3(transform.position.x, alturaMaxima, transform.position.z);
-            }
-        }
+        }   
     }
 
     public void TogglePause()
@@ -184,38 +171,15 @@ public class GameManager : MonoBehaviour
 
         if (lives > 0)
         {
-            Debug.Log("Vida perdida. Reapareciendo...");
-
-            // AL MORIR: Si reseteamos salud (para poder seguir jugando)
-            ResetHealth();
-
-            // MOVER AL JUGADOR (Sin recargar escena)
-            GameObject player = GameObject.FindGameObjectWithTag("Jugador");
-            if (player != null)
-            {
-                // Resetear fisicas
-                Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-                if (rb != null) rb.linearVelocity = Vector2.zero;
-
-                // Elegir destino: Checkpoint o Inicio
-                if (checkpointActivated)
-                {
-                    player.transform.position = lastCheckpointPos;
-                    Debug.Log("Respawn en Checkpoint");
-                }
-                else
-                {
-                    player.transform.position = initialLevelPos;
-                    Debug.Log("Respawn en Inicio del Nivel");
-                }
-            }
+            // Reiniciar nivel con transición
+            LevelTransition.instance.LoadScene(SceneManager.GetActiveScene().name);
         }
         else
         {
-            // Game Over real
-            checkpointActivated = false;
-            SceneManager.LoadScene("MainMenu");
-            Destroy(gameObject);
+            // Ir al menú con transición
+            // Destruimos el GM un poco después o nos aseguramos que no de error
+            LevelTransition.instance.LoadScene("MainMenu");
+            Destroy(gameObject, 1.5f); // Destruir con un pequeño retraso para dejar que termine el fade
         }
     }
 

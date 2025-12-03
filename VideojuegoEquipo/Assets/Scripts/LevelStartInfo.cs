@@ -5,14 +5,14 @@ public class LevelStartInfo : MonoBehaviour
     [TextArea]
     public string mensajeDelNivel;
 
+    // Arrastra aquí el objeto "Controlador_Inicio" en el Inspector
+    public MessageController controladorInicio;
+
     void Start()
     {
-        // Buscamos el controlador y le mandamos el mensaje
-        MessageController msg = Object.FindAnyObjectByType<MessageController>();
-        if (msg != null)
+        if (controladorInicio != null)
         {
-            // Solo mostramos el mensaje, sin acción especial al cerrar
-            msg.ShowMessage(mensajeDelNivel);
+            controladorInicio.ShowMessage(mensajeDelNivel);
         }
     }
 }

@@ -1,24 +1,25 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
+// (No necesitas using SceneManager aquí si usas el LevelTransition)
 
 public class LevelExit : MonoBehaviour
 {
-    public string nextSceneName; // Nombre de la escena del siguiente nivel
+    public string nextSceneName;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Jugador"))
         {
-            // Preguntamos al GameManager si cumplimos los requisitos
             if (GameManager.instance.CanPassLevel())
             {
                 Debug.Log("¡Nivel Completado!");
-                SceneManager.LoadScene(nextSceneName);
+
+                // --- CAMBIO AQUÍ ---
+                // En lugar de SceneManager.LoadScene, usamos:
+                LevelTransition.instance.LoadScene(nextSceneName);
             }
             else
             {
                 Debug.Log("¡No puedes pasar! Te faltan objetos o puntos.");
-                // Aquí podrías mostrar un mensaje en pantalla avisando al jugador
             }
         }
     }

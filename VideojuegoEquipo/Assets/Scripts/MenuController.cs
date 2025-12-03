@@ -5,7 +5,7 @@ public class MenuController : MonoBehaviour
 {
     public void PlayGame()
     {
-        SceneManager.LoadScene("CharacterSelect");
+        LevelTransition.instance.LoadScene("CharacterSelect");
     }
 
     public void QuitGame()
