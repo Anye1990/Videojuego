@@ -27,7 +27,6 @@ public class PlayerController : MonoBehaviour
     private Color originalColor;
     private bool isInvincible = false;
 
-    // NUEVO: Variable para saber si estamos rebotando sin control
     private bool isBouncing = false;
 
     [Header("Audio")]
@@ -48,7 +47,18 @@ public class PlayerController : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
 
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
-        originalColor = spriteRenderer.color;
+        if (spriteRenderer != null) originalColor = spriteRenderer.color;
+
+        // --- FIX: Reseteo forzoso al iniciar ---
+        isBouncing = false;
+        isInvincible = false;
+        moveInput = 0;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.WakeUp(); // Despierta al motor de físicas si estaba dormido
+        }
+        // ---------------------------------------
 
         jumpsRemaining = maxJumps;
 
@@ -61,8 +71,9 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        // Si estamos en rebote forzoso, no leemos input de movimiento
         if (isBouncing) return;
+        // Seguridad: Si el tiempo está detenido, no procesar input
+        if (Time.timeScale == 0) return;
 
         moveInput = Input.GetAxis("Horizontal");
 
@@ -87,12 +98,10 @@ public class PlayerController : MonoBehaviour
         {
             jumpsRemaining = maxJumps;
             animator.SetBool("IsJumping", false);
-            isBouncing = false; // Recuperar control al tocar suelo
+            isBouncing = false;
         }
 
-        // --- CORRECCIÓN CLAVE: Si rebota, el script NO toca la velocidad ---
         if (isBouncing) return;
-        // ------------------------------------------------------------------
 
         if (!isInvincible)
             rb.linearVelocity = new Vector2(moveInput * speed, rb.linearVelocity.y);
@@ -124,12 +133,11 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsJumping", true);
     }
 
-    // --- NUEVA FUNCIÓN PARA EL BOSS ---
     public void Rebote(Vector2 fuerzaImpacto)
     {
-        isBouncing = true; // Bloqueamos las teclas
-        rb.linearVelocity = Vector2.zero; // Frenamos en seco
-        rb.AddForce(fuerzaImpacto, ForceMode2D.Impulse); // Aplicamos el empujón
+        isBouncing = true;
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(fuerzaImpacto, ForceMode2D.Impulse);
         animator.SetBool("IsJumping", true);
 
         StartCoroutine(RestaurarControl());
@@ -137,10 +145,9 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator RestaurarControl()
     {
-        yield return new WaitForSeconds(0.5f); // 0.5 segundos sin control tras golpear al boss
+        yield return new WaitForSeconds(0.5f);
         isBouncing = false;
     }
-    // ----------------------------------
 
     public void TakeDamage(int cantidad, Transform damagerPosition = null)
     {
@@ -164,12 +171,19 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.AddForce(new Vector2(recoilDirection * 5f, 5f), ForceMode2D.Impulse);
 
-        for (int i = 0; i < 5; i++)
+        if (spriteRenderer != null)
         {
-            spriteRenderer.color = hurtColor;
-            yield return new WaitForSeconds(0.1f);
-            spriteRenderer.color = originalColor;
-            yield return new WaitForSeconds(0.1f);
+            for (int i = 0; i < 5; i++)
+            {
+                spriteRenderer.color = hurtColor;
+                yield return new WaitForSeconds(0.1f);
+                spriteRenderer.color = originalColor;
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+        else
+        {
+            yield return new WaitForSeconds(1f);
         }
         isInvincible = false;
     }

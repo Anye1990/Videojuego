@@ -1,5 +1,4 @@
 using UnityEngine;
-// (No necesitas using SceneManager aquí si usas el LevelTransition)
 
 public class LevelExit : MonoBehaviour
 {
@@ -13,8 +12,6 @@ public class LevelExit : MonoBehaviour
             {
                 Debug.Log("¡Nivel Completado!");
 
-                // --- IMPORTANTE ---
-                // Reseteamos el checkpoint para que en el siguiente nivel empecemos en el inicio
                 GameManager.instance.ResetCheckpointData();
 
                 LevelTransition.instance.LoadScene(nextSceneName);

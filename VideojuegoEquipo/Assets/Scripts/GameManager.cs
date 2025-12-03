@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections; // Necesario para Corrutinas
 
 public class GameManager : MonoBehaviour
 {
@@ -26,7 +27,7 @@ public class GameManager : MonoBehaviour
     public Vector3 lastCheckPointPos;
     public bool checkpointActive = false;
 
-    // --- CAMBIO 1: Variable para saber si debemos curar al cargar ---
+    // Variable para saber si debemos curar al cargar
     private bool restoreHealthOnLoad = false;
 
     private NumberRenderer scoreDisplay;
@@ -49,49 +50,76 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // Inicialización para la primera vez que abres el juego
+        Time.timeScale = 1f;
         hasKey = false;
-        // Al iniciar el juego desde cero, sí empezamos con salud llena
         ResetHealth();
-
         InitializeLevelData();
         UpdateAllUI();
     }
 
+    // Se llama automáticamente cada vez que cambia o recarga la escena
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 1. Limpiar referencias viejas
+        // Iniciamos la espera de seguridad para evitar el congelamiento
+        StartCoroutine(SecureLevelLoad());
+    }
+
+    // --- ESTA ES LA SOLUCIÓN AL CONGELAMIENTO ---
+    IEnumerator SecureLevelLoad()
+    {
+        // 1. Esperar un frame. Esto permite que Unity destruya lo viejo y cree lo nuevo.
+        yield return null;
+
+        // 2. Asegurarnos de que el tiempo corre
+        Time.timeScale = 1f;
+
+        // 3. Limpiar referencias viejas de UI
         heartImages = null;
         scoreDisplay = null;
         livesDisplay = null;
 
-        // 2. Inicializar datos del nivel
+        // 4. Intentar buscar el HUD nuevo automáticamente
+        HUDController hud = FindAnyObjectByType<HUDController>();
+        if (hud != null)
+        {
+            RegisterHUD(hud);
+        }
+
+        // 5. Inicializar datos
         InitializeLevelData();
 
-        // --- CAMBIO 2: Solo reseteamos salud si venimos de una muerte ---
+        // 6. Restaurar Salud si venimos de morir
         if (restoreHealthOnLoad)
         {
             ResetHealth();
-            restoreHealthOnLoad = false; // Apagamos la bandera
+            restoreHealthOnLoad = false;
         }
-        // Si no, mantenemos la salud que traíamos del nivel anterior
 
-        // 3. Lógica de Checkpoint
+        // 7. Mover al Checkpoint (Ahora es seguro porque esperamos un frame)
         if (checkpointActive)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Jugador");
             if (player != null)
             {
-                player.transform.position = lastCheckPointPos + (Vector3.up * 1.5f);
+                // Movemos al jugador
+                player.transform.position = lastCheckPointPos + (Vector3.up * 0.5f); // Un poco arriba para no atascarse
 
+                // Frenamos cualquier inercia vieja
                 Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-                if (rb != null) rb.linearVelocity = Vector2.zero;
+                if (rb != null)
+                {
+                    rb.linearVelocity = Vector2.zero; // Unity 6
+                    // rb.velocity = Vector2.zero; // Si usas Unity viejo, descomenta esto y comenta la línea de arriba
+                }
             }
 
             GameObject msgPanel = GameObject.Find("MessagePanel");
             if (msgPanel != null) msgPanel.SetActive(false);
         }
 
-        Time.timeScale = 1f;
+        // 8. Actualizar UI final
+        UpdateAllUI();
     }
 
     void InitializeLevelData()
@@ -99,10 +127,6 @@ public class GameManager : MonoBehaviour
         totalCollectiblesInScene = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None).Length;
         collectiblesCollected = 0;
         hasKey = false;
-
-        // --- CAMBIO IMPORTANTE: ---
-        // Quitamos ResetHealth() de aquí. 
-        // Ya no curamos automáticamente al cambiar de nivel.
     }
 
     public void LoseLife()
@@ -112,25 +136,16 @@ public class GameManager : MonoBehaviour
 
         if (lives > 0)
         {
-            // --- CAMBIO 3: Avisamos que al recargar, debemos tener vida llena ---
             restoreHealthOnLoad = true;
-
-            // Usamos tu transición si existe
-            if (LevelTransition.instance != null)
-                LevelTransition.instance.LoadScene(SceneManager.GetActiveScene().name);
-            else
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         else
         {
-            // Game Over
+            // Game Over - Reseteamos todo
             ResetCheckpointData();
-            if (LevelTransition.instance != null)
-                LevelTransition.instance.LoadScene("MainMenu");
-            else
-                SceneManager.LoadScene("MainMenu");
-
-            Destroy(gameObject, 1f);
+            SceneManager.LoadScene("MainMenu");
+            // Destruir este GameManager para que al volver a jugar se cree uno limpio
+            Destroy(gameObject);
         }
     }
 
@@ -158,8 +173,6 @@ public class GameManager : MonoBehaviour
         currentHealth = maxHealth;
         UpdateHeartsUI();
     }
-
-    // ... Resto de tus métodos (ActivateCheckpoint, CanPassLevel, CollectObject, etc.) siguen igual ...
 
     public void ActivateCheckpoint(Vector3 position)
     {
@@ -205,17 +218,22 @@ public class GameManager : MonoBehaviour
 
     void UpdateHeartsUI()
     {
-        if (heartImages == null) return;
+        // Protección extrema contra errores nulos que congelan el juego
+        if (heartImages == null || heartImages.Length == 0) return;
+
+        // Si el primer corazón ha sido destruido (porque cambiamos de escena), salimos
+        if (heartImages[0] == null) return;
 
         for (int i = 0; i < heartImages.Length; i++)
         {
-            if (heartImages[i] == null) return;
+            if (heartImages[i] != null)
+            {
+                if (i < currentHealth) heartImages[i].sprite = fullHeart;
+                else heartImages[i].sprite = emptyHeart;
 
-            if (i < currentHealth) heartImages[i].sprite = fullHeart;
-            else heartImages[i].sprite = emptyHeart;
-
-            if (i < maxHealth) heartImages[i].enabled = true;
-            else heartImages[i].enabled = false;
+                if (i < maxHealth) heartImages[i].enabled = true;
+                else heartImages[i].enabled = false;
+            }
         }
     }
 }

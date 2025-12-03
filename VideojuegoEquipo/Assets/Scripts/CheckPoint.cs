@@ -3,7 +3,7 @@ using UnityEngine;
 public class Checkpoint : MonoBehaviour
 {
     [Header("Configuración")]
-    public Sprite activeSprite; // Sprite cuando se activa (opcional)
+    public Sprite activeSprite;
     private bool isActivated = false;
     private SpriteRenderer spriteRenderer;
 

@@ -22,7 +22,6 @@ public class HUDController : MonoBehaviour
             bossPanel.SetActive(false);
         }
     }
-
     void Start()
     {
         if (GameManager.instance != null)

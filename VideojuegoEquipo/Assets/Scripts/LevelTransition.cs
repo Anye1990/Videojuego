@@ -18,9 +18,9 @@ public class LevelTransition : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            transform.SetParent(null); // Desvincular de padres para poder no destruirlo
+            // Desvincular de padres para asegurar que DontDestroyOnLoad funcione bien
+            transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
-
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
@@ -29,28 +29,25 @@ public class LevelTransition : MonoBehaviour
         }
     }
 
-    // Este método se ejecuta AUTOMÁTICAMENTE cada vez que carga un nivel (o reinicias)
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Forzamos el Fade In para desbloquear el juego
+        // 1. Ejecutar el Fade In normal
         StartCoroutine(FadeIn());
+        StartCoroutine(FailsafeSecurity());
     }
 
     private void OnDestroy()
     {
-        // Importante: Si este objeto se destruye, dejamos de escuchar el evento para evitar errores
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     public void LoadScene(string sceneName)
     {
-        // Protección por si el objeto fue destruido
         if (this == null)
         {
             SceneManager.LoadScene(sceneName);
             return;
         }
-
         StartCoroutine(FadeOut(sceneName));
     }
 
@@ -59,19 +56,18 @@ public class LevelTransition : MonoBehaviour
         if (fadeCanvasGroup != null)
         {
             fadeCanvasGroup.alpha = 1;
-            fadeCanvasGroup.blocksRaycasts = true; // Bloquea
+            fadeCanvasGroup.blocksRaycasts = true; // Bloquea clics
 
             float timer = 0f;
             while (timer < fadeDuration)
             {
-                timer += Time.deltaTime;
+                timer += Time.unscaledDeltaTime;
                 fadeCanvasGroup.alpha = Mathf.Lerp(1f, 0f, timer / fadeDuration);
                 yield return null;
             }
 
             fadeCanvasGroup.alpha = 0;
-
-            fadeCanvasGroup.blocksRaycasts = false;
+            fadeCanvasGroup.blocksRaycasts = false; // Desbloquea clics
         }
     }
 
@@ -84,14 +80,32 @@ public class LevelTransition : MonoBehaviour
             float timer = 0f;
             while (timer < fadeDuration)
             {
-                timer += Time.deltaTime;
+                timer += Time.unscaledDeltaTime;
                 fadeCanvasGroup.alpha = Mathf.Lerp(0f, 1f, timer / fadeDuration);
                 yield return null;
             }
-
             fadeCanvasGroup.alpha = 1;
         }
 
         SceneManager.LoadScene(sceneName);
+    }
+
+    // --- SISTEMA ANTI-PANTALLA NEGRA ---
+    IEnumerator FailsafeSecurity()
+    {
+        // Esperamos 2 segundos reales (sin importar lag o pausas)
+        yield return new WaitForSecondsRealtime(2f);
+
+        // Si después de 2 segundos la pantalla sigue oscura...
+        if (fadeCanvasGroup != null && fadeCanvasGroup.alpha > 0.05f)
+        {
+            Debug.LogWarning("SISTEMA DE SEGURIDAD: Se detectó pantalla negra congelada. Forzando apertura.");
+
+            // Forzamos transparencia total
+            fadeCanvasGroup.alpha = 0;
+
+            // Importante: Permitir volver a jugar
+            fadeCanvasGroup.blocksRaycasts = false;
+        }
     }
 }
