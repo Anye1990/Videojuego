@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-[DisallowMultipleComponent] // Seguridad para no ponerlo 2 veces
+[DisallowMultipleComponent]
 public class BossController : MonoBehaviour
 {
     [Header("Configuración Boss")]
@@ -11,7 +11,7 @@ public class BossController : MonoBehaviour
     public float attackRange = 5.0f;
     public float stopDistance = 3.0f;
     public int maxHealth = 5;
-    [SerializeField] private int currentHealth; // Visible para debug
+    [SerializeField] private int currentHealth;
 
     [Header("Combate (Disparos)")]
     public GameObject projectilePrefab;
@@ -20,23 +20,24 @@ public class BossController : MonoBehaviour
     private float lastAttackTime;
 
     [Header("Defensa (Rebote e Invulnerabilidad)")]
-    public float bounceUpForce = 12f;    // Cuánto salta el jugador al golpearle
-    public float bounceBackForce = 8f;   // Cuánto se aleja el jugador
-    public float invulnerabilityTime = 2.0f; // Tiempo que se queda rojo
+    public float bounceUpForce = 12f;
+    public float bounceBackForce = 8f;
+    public float invulnerabilityTime = 2.0f;
     private bool isInvulnerable = false;
 
     [Header("Visual")]
     public Animator animator;
-    public Color damageColor = Color.red; // Color al recibir daño
+    public Color damageColor = Color.red;
     private SpriteRenderer[] allRenderers;
     private Color[] originalColors;
 
     private bool isDead = false;
     private bool isFacingRight = true;
     private HUDController hud;
+    public float waitAfterDeath = 3.0f;
 
     [Header("Límites de Vuelo")]
-    public float alturaMaxima = 2.0f; // Ajusta este valor en el Inspector
+    public float alturaMaxima = 2.0f;
     public bool usarLimiteAltura = true;
 
     void Start()
@@ -53,7 +54,7 @@ public class BossController : MonoBehaviour
             if (p != null) player = p.transform;
         }
 
-        // 2. Configurar Colores para todas las partes del cuerpo
+        // 2. Configurar Colores
         allRenderers = GetComponentsInChildren<SpriteRenderer>();
         originalColors = new Color[allRenderers.Length];
         for (int i = 0; i < allRenderers.Length; i++)
@@ -88,7 +89,6 @@ public class BossController : MonoBehaviour
 
         if (usarLimiteAltura)
         {
-            // Si el enemigo sube más de la altura permitida, lo forzamos a bajar
             if (transform.position.y > alturaMaxima)
             {
                 transform.position = new Vector3(transform.position.x, alturaMaxima, transform.position.z);
@@ -106,7 +106,7 @@ public class BossController : MonoBehaviour
             // Detectar golpe desde ARRIBA
             if (collision.contacts[0].normal.y < -0.5f)
             {
-                // 1. SIEMPRE EMPUJAR AL JUGADOR (Para que no se quede pegado)
+                // 1. SIEMPRE EMPUJAR AL JUGADOR
                 EmpujarJugador(collision.gameObject);
 
                 // 2. SOLO DAÑAR SI NO ES INVULNERABLE
@@ -121,7 +121,7 @@ public class BossController : MonoBehaviour
                 PlayerController playerScript = collision.gameObject.GetComponent<PlayerController>();
                 if (playerScript != null)
                 {
-                    playerScript.TakeDamage(1, transform); // Pasamos transform para el knockback
+                    playerScript.TakeDamage(1); // Simplificado, asumiendo que el GameManager maneja las vidas
                 }
             }
         }
@@ -134,29 +134,24 @@ public class BossController : MonoBehaviour
 
         if (rb != null)
         {
-            // Calcular dirección para alejarlo (izquierda o derecha)
             float directionX = (playerObj.transform.position.x < transform.position.x) ? -1 : 1;
             Vector2 fuerza = new Vector2(directionX * bounceBackForce, bounceUpForce);
 
-            // Si el jugador tiene el script nuevo con la función Rebote(), la usamos
             if (pc != null)
             {
-                // INTENTA USAR LA FUNCION NUEVA QUE TE DI ANTES
-                // Si te da error aquí es porque no actualizaste PlayerController.cs
-                // Si no la tienes, descomenta la linea de abajo y borra la de pc.Rebote
-
-                pc.Rebote(fuerza);
-                // rb.linearVelocity = Vector2.zero; rb.AddForce(fuerza, ForceMode2D.Impulse);
+                // Usamos la función de rebote del jugador si existe (opcional)
+                // pc.Rebote(fuerza); 
+                // Si no tienes pc.Rebote, usa la física directa:
+                rb.linearVelocity = Vector2.zero;
+                rb.AddForce(fuerza, ForceMode2D.Impulse);
             }
             else
             {
-                // Fallback por si acaso
                 rb.linearVelocity = Vector2.zero;
                 rb.AddForce(fuerza, ForceMode2D.Impulse);
             }
         }
     }
-    // -----------------------------------
 
     public void TakeDamage(int damage)
     {
@@ -164,10 +159,7 @@ public class BossController : MonoBehaviour
 
         currentHealth -= damage;
 
-        // Actualizar HUD
         if (hud != null) hud.UpdateBossHealth(currentHealth, maxHealth);
-
-        // Animación
         if (animator) animator.SetTrigger("Hurt");
 
         if (currentHealth <= 0)
@@ -176,7 +168,6 @@ public class BossController : MonoBehaviour
         }
         else
         {
-            // Activar Invulnerabilidad
             StartCoroutine(InvulnerabilityRoutine());
         }
     }
@@ -184,43 +175,58 @@ public class BossController : MonoBehaviour
     IEnumerator InvulnerabilityRoutine()
     {
         isInvulnerable = true;
-
-        // Poner todo rojo
         foreach (var sr in allRenderers) sr.color = damageColor;
-
         yield return new WaitForSeconds(invulnerabilityTime);
-
-        // Volver a color normal
         for (int i = 0; i < allRenderers.Length; i++)
         {
             if (allRenderers[i] != null) allRenderers[i].color = originalColors[i];
         }
-
         isInvulnerable = false;
     }
 
     void Die()
     {
         isDead = true;
+        Debug.Log("¡Jefe derrotado!");
+
         if (animator) animator.SetTrigger("Dying");
         if (hud != null) hud.HideBossUI();
 
-        // Desactivar físicas del boss para que caiga o no moleste
+        // Desactivar físicas para que no estorbe
         GetComponent<Collider2D>().enabled = false;
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        if (rb) rb.gravityScale = 1; // Cae al vacío si quieres
+        if (rb) rb.linearVelocity = Vector2.zero; // Detenerlo en seco
 
-        MessageController msg = Object.FindAnyObjectByType<MessageController>();
-        if (msg != null) StartCoroutine(ShowWinMessageRoutine(msg));
-        else Destroy(gameObject, 3f);
+        // --- CAMBIO PRINCIPAL: ---
+        // Ya no llamamos al MessageController.
+        // Vamos directamente a la secuencia de salida.
+        StartCoroutine(GoToMenuSequence());
     }
 
-    IEnumerator ShowWinMessageRoutine(MessageController msg)
+    IEnumerator GoToMenuSequence()
     {
-        yield return new WaitForSeconds(2.0f);
-        msg.ShowMessage("¡HAS GANADO!\nDerrotaste al Boss final.");
-        SceneManager.LoadScene("MainMenu");
-        Destroy(gameObject);
+        // 1. Espera dramática (explosiones, sonido final, etc.)
+        yield return new WaitForSeconds(waitAfterDeath);
+
+        // 2. Resetear Checkpoints (IMPORTANTE para la próxima partida)
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.ResetCheckpointData();
+        }
+
+        // 3. Cargar Menú con transición
+        if (LevelTransition.instance != null)
+        {
+            LevelTransition.instance.LoadScene("MainMenu");
+        }
+        else
+        {
+            Debug.LogWarning("No se encontró LevelTransition, cargando normal.");
+            SceneManager.LoadScene("MainMenu");
+        }
+
+        // (Opcional) Destruir el boss por limpieza, aunque al cambiar de escena se destruye solo.
+        Destroy(gameObject, 0.5f);
     }
 
     void LookAtPlayer()
@@ -236,9 +242,11 @@ public class BossController : MonoBehaviour
         scale.x *= -1;
         transform.localScale = scale;
     }
-
     void Shoot()
     {
+        // Aviso para saber si el código intenta disparar
+        Debug.Log("¡Intento de disparo en: " + Time.time + "!");
+
         lastAttackTime = Time.time;
         if (animator) animator.SetTrigger("Attack");
 
@@ -246,6 +254,10 @@ public class BossController : MonoBehaviour
         {
             Vector3 spawnPos = firePoint != null ? firePoint.position : transform.position;
             Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
+        }
+        else
+        {
+            Debug.LogError("¡Falta asignar el Projectile Prefab en el Inspector!");
         }
     }
 }
