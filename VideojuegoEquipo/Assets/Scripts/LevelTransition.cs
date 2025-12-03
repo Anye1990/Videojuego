@@ -8,17 +8,20 @@ public class LevelTransition : MonoBehaviour
     public static LevelTransition instance;
 
     [Header("Referencias")]
-    public CanvasGroup fadeCanvasGroup; // Arrastra aquí tu objeto Panel/Fade con el CanvasGroup
+    public CanvasGroup fadeCanvasGroup;
 
     [Header("Configuración")]
-    public float fadeDuration = 1.0f; // Cuánto tarda en desvanecerse
+    public float fadeDuration = 1.0f;
 
     private void Awake()
     {
-        // Configuración Singleton simple para llamarlo desde otros scripts
         if (instance == null)
         {
             instance = this;
+            transform.SetParent(null); // Desvincular de padres para poder no destruirlo
+            DontDestroyOnLoad(gameObject);
+
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
@@ -26,51 +29,69 @@ public class LevelTransition : MonoBehaviour
         }
     }
 
-    private void Start()
+    // Este método se ejecuta AUTOMÁTICAMENTE cada vez que carga un nivel (o reinicias)
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Al iniciar cualquier escena, hacemos un Fade In (de negro a transparente)
+        // Forzamos el Fade In para desbloquear el juego
         StartCoroutine(FadeIn());
+    }
+
+    private void OnDestroy()
+    {
+        // Importante: Si este objeto se destruye, dejamos de escuchar el evento para evitar errores
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     public void LoadScene(string sceneName)
     {
-        Debug.Log("Iniciando Fade Out hacia: " + sceneName); // <--- AÑADE ESTO
+        // Protección por si el objeto fue destruido
+        if (this == null)
+        {
+            SceneManager.LoadScene(sceneName);
+            return;
+        }
+
         StartCoroutine(FadeOut(sceneName));
     }
+
     IEnumerator FadeIn()
     {
-        fadeCanvasGroup.alpha = 1; // Empezamos totalmente negro
-        fadeCanvasGroup.blocksRaycasts = true; // Bloqueamos clics mientras carga
-
-        float timer = 0f;
-        while (timer < fadeDuration)
+        if (fadeCanvasGroup != null)
         {
-            timer += Time.deltaTime;
-            // Lerp va de 1 a 0
-            fadeCanvasGroup.alpha = Mathf.Lerp(1f, 0f, timer / fadeDuration);
-            yield return null;
-        }
+            fadeCanvasGroup.alpha = 1;
+            fadeCanvasGroup.blocksRaycasts = true; // Bloquea
 
-        fadeCanvasGroup.alpha = 0;
-        fadeCanvasGroup.blocksRaycasts = false; // Permitimos jugar
+            float timer = 0f;
+            while (timer < fadeDuration)
+            {
+                timer += Time.deltaTime;
+                fadeCanvasGroup.alpha = Mathf.Lerp(1f, 0f, timer / fadeDuration);
+                yield return null;
+            }
+
+            fadeCanvasGroup.alpha = 0;
+
+            fadeCanvasGroup.blocksRaycasts = false;
+        }
     }
 
-    // De Transparente a Negro (Al salir del nivel)
     IEnumerator FadeOut(string sceneName)
     {
-        fadeCanvasGroup.blocksRaycasts = true; // Bloqueamos clics para que no se mueva el pj
-        float timer = 0f;
-
-        while (timer < fadeDuration)
+        if (fadeCanvasGroup != null)
         {
-            timer += Time.deltaTime;
-            // Lerp va de 0 a 1
-            fadeCanvasGroup.alpha = Mathf.Lerp(0f, 1f, timer / fadeDuration);
-            yield return null;
+            fadeCanvasGroup.blocksRaycasts = true;
+
+            float timer = 0f;
+            while (timer < fadeDuration)
+            {
+                timer += Time.deltaTime;
+                fadeCanvasGroup.alpha = Mathf.Lerp(0f, 1f, timer / fadeDuration);
+                yield return null;
+            }
+
+            fadeCanvasGroup.alpha = 1;
         }
 
-        fadeCanvasGroup.alpha = 1;
-        // Una vez la pantalla está negra, cargamos la escena
         SceneManager.LoadScene(sceneName);
     }
 }
